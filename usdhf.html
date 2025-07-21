@@ -1,0 +1,100 @@
+<div class="stat-item">
+  <span class="stat-number" id="account-posts-count">0 Posts</span>
+  <span class="stat-label">Posts</span>
+</div>
+<div class="stat-item">
+  <span class="stat-number" id="account-likes-count">0 Likes Received</span>
+  <span class="stat-label">Likes Received</span>
+</div>
+<script>
+function initAccountStats() {
+  if (!auth.currentUser) return;
+  
+  const user = db.getUserByEmail(auth.currentUser.email);
+  if (!user) return;
+
+  // Initialize counts if undefined
+  user.postCount = user.postCount || 0;
+  user.likesReceived = user.likesReceived || 0;
+  db.updateUser(auth.currentUser.email, user);
+
+  // Update DOM elements
+  const postsElement = document.getElementById('account-posts-count');
+  const likesElement = document.getElementById('account-likes-count');
+  
+  if (postsElement) postsElement.textContent = `${user.postCount} Posts`;
+  if (likesElement) likesElement.textContent = `${user.likesReceived} Likes Received`;
+}
+
+
+function clearUserInterface() {
+  // Clear profile information
+  document.getElementById('profile-name').textContent = '';
+  document.getElementById('profile-email').textContent = '';
+  document.getElementById('profile-picture').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+';
+  
+  // Clear account form
+  document.getElementById('account-name').value = '';
+  document.getElementById('account-email').value = '';
+  document.getElementById('account-bio').value = '';
+  document.getElementById('pfp-preview').src = '';
+  
+  // Clear statistics
+  document.getElementById('account-posts-count').textContent = '0 Posts';
+  document.getElementById('account-likes-count').textContent = '0 Likes Received';
+  
+  // Clear posts container
+  document.getElementById('nearbyPostsContainer').innerHTML = '';
+  
+  // Clear any active popups
+  closeAllPopups();
+  closeProfilePopup();
+  closeFullscreenPopup();
+  
+  // Clear user location
+  userLocation = DEFAULT_CENTER;
+  
+  // Reset map view if it exists
+  if (map) {
+    map.setCenter(DEFAULT_CENTER);
+    map.setZoom(8);
+  }
+}
+
+function updateProfileStats(email) {
+  const user = db.getUserByEmail(email);
+ if (!user) return;
+
+ // Update posts count
+ const postsCountElement = document.getElementById('account-posts-count');
+ if (postsCountElement) {
+   postsCountElement.textContent = `${user.postCount || 0} Posts`;
+ }
+
+ // Update likes received
+ const likesCountElement = document.getElementById('account-likes-count');
+ if (likesCountElement) {
+   likesCountElement.textContent = `${user.likesReceived || 0} Likes Received`;
+ }
+
+ // Log stats to console for debugging
+ console.log(`[updateProfileStats] User: ${user.email}, Posts: ${user.postCount || 0}, Likes Received: ${user.likesReceived || 0}`);
+
+
+ const userPosts = db.getPostsByUser(email);
+ const likesReceived = db.getLikesReceived(email);
+
+ // Update stats in the profile popup if it's open
+ if (currentProfileEmail === email) {
+   document.getElementById('popup-posts-count').textContent = `${userPosts.length} Posts`;
+   document.getElementById('popup-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+ }
+
+ // Update stats in the account page if viewing own profile
+ if (auth.currentUser?.email === email) {
+   document.getElementById('profile-posts-count').textContent = `${userPosts.length} Posts`;
+   document.getElementById('profile-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+ }
+}
+
+</script>

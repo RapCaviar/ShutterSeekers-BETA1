@@ -1,0 +1,43 @@
+LEAFLET MIGRATION PLAN FOR geosocial.html
+
+1. Add Leaflet CSS/JS to <head>:
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+2. Replace Google Maps <script> and all Google Maps API usage:
+- Remove any <script src="https://maps.googleapis.com/..."> and related code.
+
+3. Map Initialization:
+Replace:
+  map = new google.maps.Map(document.getElementById('map'), { ... });
+With:
+  map = L.map('map').setView([51.505, -0.09], 13);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+4. Markers:
+Replace all new google.maps.Marker({...}) with:
+  const marker = L.marker([lat, lng]).addTo(map);
+  marker.bindPopup('Popup text');
+
+5. Marker Data:
+- Store marker data in marker.options or use marker.myData = {...} for custom data.
+
+6. Marker Clicks:
+Replace marker.addListener('click', ...) with:
+  marker.on('click', function(e) { ... });
+
+7. Remove all google.maps.SymbolPath, setIcon, and scaling logic. Use Leaflet marker icons or L.circleMarker for custom styles.
+
+8. Distance Calculation:
+Replace google.maps.geometry.spherical.computeDistanceBetween with:
+  map.distance([lat1, lng1], [lat2, lng2])
+
+9. Remove all Google Maps-specific code and references.
+
+10. Test: Ensure all map, marker, and popup features work as before.
+
+---
+
+This file provides a step-by-step plan to migrate your app from Google Maps to Leaflet. You can now proceed to update geosocial.html accordingly, or ask Copilot to do it in steps.

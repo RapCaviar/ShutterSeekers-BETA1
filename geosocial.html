@@ -1,0 +1,5779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>Apollo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  /* Modern filter and search UI */
+  #filterButton {
+    position: fixed;
+    left: 16px;
+    bottom: 24px;
+    z-index: 1001;
+    background: #fff;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #007bff;
+    border: none;
+    transition: background 0.2s;
+  }
+  #filterButton:active, #filterButton:hover {
+    background: #f0f8ff;
+  }
+  #filterOptions {
+    position: fixed;
+    left: 16px;
+    bottom: 80px;
+    z-index: 1001;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    padding: 18px 16px 12px 16px;
+    min-width: 220px;
+    max-width: 90vw;
+    font-size: 15px;
+    display: none;
+  }
+  @media (max-width: 600px) {
+    #filterButton {
+      left: 10px;
+      bottom: 10px;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+    #filterOptions {
+      left: 10px;
+      bottom: 56px;
+      min-width: 160px;
+      font-size: 14px;
+      padding: 10px 8px 8px 8px;
+    }
+  }
+
+  /* Full-width search bar at top */
+  .search-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1002;
+    background: #fff;
+    padding: 10px 12px 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-container input[type="text"] {
+    flex: 1;
+    font-size: 18px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    background: #f8f9fa;
+  }
+  .search-container button {
+    font-size: 18px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+  }
+  .search-container button:active, .search-container button:hover {
+    background: #0056b3;
+  }
+  @media (max-width: 600px) {
+    .search-container {
+      padding: 6px 4px 4px 4px;
+    }
+    .search-container input[type="text"] {
+      font-size: 16px;
+      padding: 8px 8px;
+    }
+    .search-container button {
+      font-size: 16px;
+      padding: 8px 12px;
+    }
+  }
+  /* Responsive tweaks for mobile/touch devices */
+  @media (max-width: 600px) {
+    .fullscreen-post-card, .posts-container, .account-container {
+      max-width: 100vw !important;
+      padding: 8px !important;
+      margin: 0 !important;
+    }
+    .drop-zone {
+      min-height: 60px;
+      font-size: 16px;
+    }
+    .profile-header img, .post-header img {
+      width: 40px !important;
+      height: 40px !important;
+    }
+    .post-header, .fullscreen-post-header {
+      flex-direction: row;
+      align-items: center;
+    }
+    .profile-info h2, .post-title {
+      font-size: 20px !important;
+    }
+    .post-desc {
+      font-size: 15px !important;
+    }
+    .btn, button {
+      font-size: 16px !important;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    input, textarea {
+      font-size: 16px !important;
+    }
+  }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    .fullscreen-post-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+      margin: 20px auto;
+      padding: 25px;
+      max-width: 800px;
+    }
+    .drop-zone {
+  border: 2px dashed #007bff;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  color: #007bff;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.drop-zone.highlight {
+  background-color: #f0f8ff;
+  border-color: #0056b3;
+  color: #0056b3;
+}
+
+.drop-zone img {
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 10px;
+}
+
+#uploadImage {
+  display: none;
+}
+
+.upload-progress {
+  width: 100%;
+  margin-top: 10px;
+  display: none;
+}
+
+.uploading .upload-progress {
+  display: block;
+}
+    .fullscreen-location-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .fullscreen-location-header h2 {
+      margin: 0 0 5px 0;
+      color: #333;
+      font-size: 1.8rem;
+    }
+    
+    .fullscreen-location-header .coordinates {
+      color: #666;
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+    
+    .fullscreen-posts-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.fullscreen-post {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.fullscreen-post-images {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 15px 0;
+  margin-bottom: 15px;
+}
+
+.fullscreen-post-image {
+  max-height: 70vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: pointer;
+}
+    .fullscreen-post-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #444;
+    }
+    
+    .fullscreen-post-desc {
+      color: #555;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+    
+    .fullscreen-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+      margin: 15px 0;
+    }
+    
+    .fullscreen-gallery img {
+      width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #f5f5f5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .fullscreen-post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    
+    .fullscreen-post-date {
+      color: #888;
+      font-size: 0.85rem;
+    }
+    
+    .fullscreen-post-actions {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .fullscreen-action-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    .fullscreen-action-btn.liked {
+      color: #e74c3c;
+    }
+    
+    .fullscreen-comments-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    
+    .fullscreen-comment {
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .fullscreen-comment:last-child {
+      border-bottom: none;
+    }
+    
+    .fullscreen-comment-author {
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .fullscreen-comment-input {
+      display: flex;
+      margin-top: 15px;
+    }
+    
+    .fullscreen-comment-input input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+    }
+    
+    .fullscreen-comment-input button {
+      margin-left: 10px;
+      padding: 0 20px;
+      background: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    
+    .fullscreen-close-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 1003;
+      border: none;
+      font-size: 20px;
+    }
+    .account-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #dddfe2;
+    }
+    .profile-pic-clickable {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+    .profile-picture {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+      background-color: #e9ebee;
+    }
+
+    .profile-info h2 {
+      margin: 0;
+      color: #1d2129;
+    }
+
+    .profile-info p {
+      margin: 5px 0 0;
+      color: #65676b;
+    }
+
+    .account-form .form-group {
+      margin-bottom: 15px;
+    }
+
+    .account-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .account-form input[type="text"],
+    .account-form input[type="email"],
+    .account-form input[type="password"],
+    .account-form textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #dddfe2;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .account-form button {
+      background: #1877f2;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .account-form button:hover {
+      background: #166fe5;
+    }
+
+    .pfp-upload {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .pfp-upload input[type="file"] {
+      display: none;
+    }
+
+    .pfp-upload-label {
+      background: #e9ebee;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .pfp-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: 10px;
+    }
+
+    .welcome-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1877f2;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      max-width: 80%;
+      text-align: center;
+      display: none;
+    }
+
+    .welcome-notification-close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      width: 400px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .image-gallery {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+/* Add these styles */
+.image-post {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.like-section {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.like-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+.like-btn.liked {
+  color: red;
+}
+
+    .image-post:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .image-post img {
+      height: 200px;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .info-area {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+    }
+    .ad-banner {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 15px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #666;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* For the top banner */
+#top-banner {
+  margin: 10px auto;
+  padding: 10px;
+}
+
+/* For banners between content */
+#mid-content-banner {
+  margin: 30px auto;
+  border-left: 3px solid #4285f4;
+  border-right: 3px solid #4285f4;
+}
+
+/* For the bottom banner */
+#bottom-banner {
+  margin-bottom: 60px; /* Make sure it's above the bottom nav */
+}
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 14px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+
+    .bottom-nav button.active {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .page {
+      display: none;
+      height: calc(100vh - 50px);
+      width: 100%;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .button-group {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .fullscreen-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f9f9f9;
+      z-index: 1002;
+      padding: 40px 20px 20px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .fullscreen-close {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      font-size: 32px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .fullscreen-post {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .fullscreen-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .fullscreen-gallery img {
+      width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #f5f5f5;
+    }
+
+    .auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .auth-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .auth-container h2 {
+      color: #1877f2;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: #1877f2;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+
+    .login-btn:hover {
+      background: #166fe5;
+    }
+
+    .signup-btn {
+      width: 100%;
+      background: #42b72a;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px 0;
+    }
+
+    .signup-btn:hover {
+      background: #36a420;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 15px 0;
+      color: #65676b;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #dadde1;
+    }
+
+    .divider:not(:empty)::before {
+      margin-right: 10px;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: 10px;
+    }
+
+    .profile-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      z-index: 1001;
+      display: none;
+    }
+
+    .profile-popup-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-popup-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 24px;
+      color: red;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 5px;
+      background: none;
+      border: none;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 10000;
+      opacity: 1;
+      transition: opacity 0.5s;
+    }
+
+    .drop-zone {
+      border: 2px dashed #007bff;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #007bff;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      margin-right: 5px;
+    }
+
+    .search-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 300px;
+    }
+
+/* Add to your existing styles */
+.posts-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.post-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.post-images img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.post-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.like-btn {
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.like-btn.liked {
+  color: red;
+}
+
+.comments-section {
+  margin-top: 15px;
+}
+
+.comment {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.comment-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 18px;
+  border: 1px solid #ddd;
+}
+
+.comment-input button {
+  margin-left: 8px;
+  background: #1877f2;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.view-more-comments {
+  color: #65676b;
+  font-size: 13px;
+  text-align: center;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.post-images {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 15px 0;
+  margin-bottom: 15px;
+}
+
+.post-image {
+  max-height: 70vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.comment-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+
+
+.post-header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevent image from shrinking */
+  border: 2px solid #ffffff; /* Optional: adds border */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds subtle shadow */
+}
+
+.post-location {
+  flex-grow: 1; /* Allow text to take remaining space */
+}
+
+.post-location h4 {
+  margin: 0 0 3px 0;
+  font-size: 16px;
+}
+
+.post-location p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+    .post-content {
+      padding: 0 16px 12px;
+    }
+
+    .post-text {
+      margin-bottom: 12px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .post-images {
+      margin-bottom: 12px;
+    }
+
+    .post-image {
+  max-height: 300px; /* Adjust as needed */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* For fullscreen popup */
+.fullscreen-post-image {
+  max-height: 70vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background: #f5f5f5;
+}
+
+    .post-actions {
+      display: flex;
+      padding: 8px 16px;
+      border-top: 1px solid #dddfe2;
+      border-bottom: 1px solid #dddfe2;
+    }
+
+    .post-action {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+      color: #65676b;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .post-action:hover {
+      background: #f5f6f7;
+    }
+
+    .post-comments {
+      padding: 10px 16px;
+      background: #f5f6f7;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .comments-list {
+      margin-bottom: 10px;
+    }
+
+    .post-comment {
+      margin-bottom: 8px;
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid #e9ebee;
+    }
+
+    .post-comment:last-child {
+      border-bottom: none;
+    }
+
+    .comment-input-container {
+  display: flex;
+  margin-top: 10px;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 18px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.comment-input:focus {
+  border-color: #007bff;
+}
+
+.post-comment {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 18px;
+}
+
+.comment-author {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+    .like-btn.liked {
+      color: #1877f2;
+    }
+
+    .go-to-post-btn {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .go-to-post-btn:hover {
+      background: #166fe5;
+    }
+
+    .search-results {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 5px;
+      border-top: 1px solid #eee;
+      display: none;
+    }
+
+    .search-result-item {
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    .search-result-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .name-error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .like-btn {
+      background: none;
+      border: none;
+      color: black;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+
+    .like-btn.liked {
+      color: red;
+    }
+
+    .like-count {
+      font-size: 0.9em;
+      color: #6c757d;
+      margin-left: 5px;
+    }
+
+
+.fullscreen-post-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.fullscreen-location-header {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.fullscreen-location-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+}
+
+.welcome-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(0, 119, 255);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  max-width: 500px;
+  width: 90%;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  display: none;
+}
+
+.drop-zone {
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 25px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.drop-zone:hover {
+  background-color: #f8f9fa;
+  border-color: #0056b3;
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.drop-zone-icon {
+  font-size: 2rem;
+}
+
+.drop-zone-text {
+  font-size: 1.1rem;
+  color: #007bff;
+}
+
+.drop-zone-or {
+  color: #6c757d;
+}
+
+.drop-zone-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.drop-zone-btn:hover {
+  background: #0056b3;
+}
+
+.drop-zone-input {
+  display: none;
+}
+
+.drop-zone-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.drop-zone-preview-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.drop-zone-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drop-zone-preview-item-remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drop-zone-over {
+  background-color: #e9f5ff !important;
+  border-color: #0056b3 !important;
+}
+
+.welcome-notification-close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.fullscreen-location-header p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.fullscreen-post-content {
+  margin-top: 15px;
+}
+
+
+    .proximity-notification {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: none;
+    }
+
+    /* Add these styles */
+    .post-images-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  margin-bottom: 10px;
+}
+
+.post-images-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.post-images-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.post-image {
+  height: 200px;
+  width: auto;
+  max-width: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.post-image:hover {
+  transform: scale(1.02);
+}
+
+/* For single image */
+.post-image.single {
+  max-width: 100%;
+  height: auto;
+  max-height: 400px;
+}
+    .profile-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  z-index: 1001;
+  display: none;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  padding: 15px 0;
+  border-top: 1px solid #eee;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.profile-popup-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-popup-pic {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.profile-popup-body {
+  padding: 10px 0;
+}
+
+
+
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 24px;
+  color: red;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 5px;
+  background: none;
+  border: none;
+}
+.fullscreen-post .post-header img.profile-pic-clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.fullscreen-post .post-header img.profile-pic-clickable:hover {
+  transform: scale(1.05);
+}
+
+    .proximity-close {
+      margin-left: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .filter-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 300px;
+    }
+    .posts-header {
+  margin-bottom: 20px;
+}
+
+.posts-filter {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: 600;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+#rangeFilter {
+  width: 150px;
+}
+    .filter-options {
+      margin-top: 10px;
+    }
+
+    .slider-container {
+      margin: 15px 0;
+    }
+
+    .slider-values {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .filter-type {
+      margin: 10px 0;
+    }
+
+    /* Center images in posts */
+    .post-images-container,
+    .fullscreen-post-images {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Ensure landscape images match the height of vertical ones */
+    .post-image,
+    .fullscreen-post-image {
+      max-height: 400px;
+      width: auto;
+      object-fit: cover;
+    }
+
+    .post-image.landscape,
+    .fullscreen-post-image.landscape {
+      height: 400px;
+      width: auto;
+    }
+    /* Center images in posts */
+    .post-images-container,
+    .fullscreen-post-images {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Ensure landscape images match the height of vertical ones */
+    .post-image,
+    .fullscreen-post-image {
+        max-height: 400px;
+        width: auto;
+        object-fit: cover;
+    }
+
+    .post-image.landscape,
+    .fullscreen-post-image.landscape {
+        height: 400px;
+        width: auto;
+    }
+
+.image-slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+.slider-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.slider-arrow:hover {
+  opacity: 1;
+}
+
+.slider-arrow.prev {
+  left: 10px;
+}
+
+.slider-arrow.next {
+  right: 10px;
+}
+
+.slider-arrow.hidden {
+  display: none;
+}
+
+.post-image {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+}
+  </style>
+</head>
+<body>
+  <div class="welcome-notification" id="welcomeNotification">
+    <span class="welcome-notification-close" onclick="closeWelcomeNotification()">×</span>
+    <h3>Welcome to Adi's Apollo!</h3>
+    <p>This app combines social media posting with Google Maps to help photographers:</p>
+    <ul style="text-align: left; margin: 10px 0;">
+      <li>📌 Pin exact photo locations</li>
+      <li>🗺️ Find hidden compositions not on Google Maps</li>
+      <li>👥 Share spots with other photographers</li>
+      <li>🔍 Discover new shooting locations</li>
+    </ul>
+    <div id="welcomeUserActions" style="margin-top: 15px;">
+      <button onclick="showPage('posts'); closeWelcomeNotification()" 
+              style="background: #d6e40f; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
+        Explore Posts
+      </button>
+      <button onclick="showPage('account'); closeWelcomeNotification()" 
+              style="background: #42b72a; color: white; border: none; padding: 8px 16px; border-radius: 4px;">
+        Your Profile
+      </button>
+    </div>
+  </div>
+  
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <button class="active" onclick="showPage('home')">Home</button>
+  <!--<button onclick="showPage('posts')">Posts</button>-->
+    <button onclick="showPage('account')">Account</button>
+  </div>
+
+  <!-- Home Page (Map Page) -->
+  <div id="home-page" class="page active">
+    <div id="map"></div>
+    <div id="overlay"></div>
+    <div class="proximity-notification" id="proximityNotification">
+      There's a location here! Add images to reveal it (needs 3 posts to be visible).
+      <span class="proximity-close" onclick="document.getElementById('proximityNotification').style.display='none'">×</span>
+    </div>
+
+    <!-- Search Container -->
+    <!-- Modern Search Bar -->
+    <div class="search-container">
+      <input id="searchInput" type="text" placeholder="Search locations, users, or posts..." style="min-width: 180px; flex: 1;">
+      <button id="searchButton">🔍</button>
+    </div>
+    <!-- Filter Button and Options -->
+    <button id="filterButton" title="Filter"><span>⏷</span></button>
+    <div id="filterOptions">
+      <div style="font-weight:600;margin-bottom:8px;">Filter Posts</div>
+      <div style="margin-bottom:8px;">
+        <label for="likeRangeMin">Min Likes:</label>
+        <input id="likeRangeMin" type="range" min="0" max="50" value="0" style="width:100%;">
+        <span id="minValue">0</span>
+      </div>
+      <div style="margin-bottom:8px;">
+        <label for="likeRangeMax">Max Likes:</label>
+        <input id="likeRangeMax" type="range" min="0" max="50" value="50" style="width:100%;">
+        <span id="maxValue">50</span>
+      </div>
+      <button onclick="applyLikeFilter()" style="width:100%;margin-bottom:6px;">Apply</button>
+      <button onclick="resetFilters()" style="width:100%;background:#f8f9fa;color:#007bff;">Reset</button>
+    </div>
+
+    <!-- Popups -->
+    <div class="popup" id="namePopup">
+      <button class="close-btn" onclick="closeAllPopups()">×</button>
+      <h3>Name this Location</h3>
+      <input type="text" class="form-control mb-2" id="locationName" placeholder="Enter location name">
+      <div class="name-error" id="nameError">This name is already in use. Please choose a different name.</div>
+      <button class="btn btn-primary" onclick="saveLocationName()">Save</button>
+    </div>
+
+    <div class="popup" id="imageUploadPopup">
+      <button class="close-btn" onclick="closeAllPopups()">×</button>
+      <h3>Add Images</h3>
+      <div id="dropZone" class="drop-zone">Drag & Drop Images Here or Click to Upload</div>
+      <input type="file" id="uploadImage" accept="image/*" multiple style="display: none;">
+      <input type="text" class="form-control mb-2" id="imageTitle" placeholder="Image title">
+      <textarea class="form-control mb-2" id="imageDesc" placeholder="Image description"></textarea>
+      <button class="btn btn-success" onclick="saveImagePost()">Upload</button>
+    </div>
+
+    <div class="popup" id="infoPopup">
+      <button class="close-btn" onclick="closeAllPopups()">×</button>
+      <h3 id="infoTitle"></h3>
+      <p><strong>Coordinates:</strong> <span id="infoCoords"></span></p>
+      <div class="info-area" id="infoArea"></div>
+      <div class="button-group">
+        <button class="btn btn-info" onclick="showImageUpload()">Add Your Own Images</button>
+
+      </div>
+    </div>
+    
+    <div class="fullscreen-popup" id="fullscreenPopup">
+      <button class="close-btn fullscreen-close" onclick="closeFullscreenPopup()">×</button>
+      <div id="fullscreenContent"></div>
+    </div>
+  </div>
+
+  <!-- Posts Page -->
+<div id="posts-page" class="page">
+    <div class="posts-container">
+      <div class="posts-header">
+        <h2>Posts Near You</h2>
+        <div class="posts-filter">
+          <div class="filter-group">
+            <label>Range (km):</label>
+            <input type="range" id="rangeFilter" min="1" max="100" value="10">
+            <span id="rangeValue">10 km</span>
+          </div>
+          <div class="filter-group">
+            <label>Sort by:</label>
+            <select id="sortFilter">
+              <option value="distance">Distance</option>
+              <option value="date">Newest</option>
+              <option value="likes">Most Likes</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="nearbyPostsContainer" class="fullscreen-posts-container"></div>
+        <div class="loading-spinner">Loading nearby posts...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Page -->
+  <div id="account-page" class="page">
+    <div class="account-container">
+      <div id="account-info">
+        <div class="profile-header">
+          <img id="profile-picture" class="profile-picture" src="" alt="Profile Picture">
+          <div class="profile-info">
+            <h2 id="profile-name">Loading...</h2>
+            <p id="profile-email"></p>
+
+          </div>
+        </div>
+        
+        <form class="account-form" id="accountForm">
+          <div class="form-group">
+            <label for="account-name">Name</label>
+            <input type="text" id="account-name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="account-email">Email</label>
+            <input type="email" id="account-email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="account-bio">Bio</label>
+            <textarea id="account-bio" rows="3"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Profile Picture</label>
+            <div class="pfp-upload">
+              <label for="pfp-upload" class="pfp-upload-label">Choose Image</label>
+              <input type="file" id="pfp-upload" accept="image/*">
+              <img id="pfp-preview" class="pfp-preview" src="" alt="Preview">
+            </div>
+          </div>
+          
+          <button type="submit">Save Changes</button>
+          <button type="button" class="logout-btn" onclick="logout()">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Overlay -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-container">
+      <div id="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <input type="email" id="login-email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="login-password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="login-btn">Log In</button>
+          <div class="divider">or</div>
+          <button type="button" id="show-register" class="signup-btn">Create New Account</button>
+        </form>
+      </div>
+     
+      <div id="register-container" style="display:none">
+        <h2>Sign Up</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <input type="text" id="register-name" placeholder="Full Name" required minlength="3">
+          </div>
+          <div class="form-group">
+            <input type="email" id="register-email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="register-password" placeholder="New Password" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label>Profile Picture</label>
+            <input type="file" id="register-pfp" accept="image/*">
+            <img id="register-pfp-preview" class="pfp-preview">
+          </div>
+          <button type="submit" class="signup-btn">Sign Up</button>
+          <div class="divider"></div>
+          <button type="button" id="show-login" class="login-btn">Already have an account?</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; text-align: center;">
+    <h1 style="font-family: 'Arial', sans-serif; font-size: 24px; color: #007bff; margin: 5px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+      Adi's Apollo
+    </h1>
+  </div>
+<!-- --
+<button onclick="clearAllStorage()" 
+        style="position: fixed; bottom: 60px; right: 10px; z-index: 10000;"
+        class="btn btn-danger">
+  Clear All Storage
+</button>
+-->
+<!-- Add this proper profile popup structure -->
+<div class="profile-popup" id="profilePopup">
+  <button class="close-btn" onclick="closeProfilePopup()">×</button>
+  <div class="profile-popup-header">
+    <img id="popup-profile-pic" class="profile-popup-pic" src="" alt="Profile Picture">
+    <div>
+      <h3 id="popup-profile-name"></h3>
+      <p id="popup-profile-email"></p>
+    </div>
+  </div>
+  <div class="profile-popup-body">
+    <h4>Bio</h4>
+    <p id="popup-profile-bio">No bio yet</p>
+
+  </div>
+</div>
+  <script>
+    let map;
+    let activeMarker = null;
+    let markers = [];
+    let tempMarker = null;
+    const MIN_DISTANCE_BETWEEN_MARKERS = 10; // in meters
+    const MIN_POSTS_FOR_VISIBILITY = 1;
+    let currentFilter = null;
+    let currentProfileEmail = null;
+    // Add this with your other global variables
+const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 }; // New York coordinates as fallback
+let userLocation = DEFAULT_CENTER; // Initialize with default center
+
+    // Image compression function
+    function compressImage(file, quality = 0.7, maxWidth = 800) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = height * (maxWidth / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error('Compression failed'));
+          }
+        },
+        file.type,
+        quality
+      );
+    };
+
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+    function showPage(pageId) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  
+  // Show selected page
+  document.getElementById(`${pageId}-page`).classList.add('active');
+  
+  // Update active button
+  document.querySelectorAll('.bottom-nav button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Special handling for pages
+  if (pageId === 'home') {
+    document.getElementById('map').style.height = 'calc(100vh - 50px)';
+    if (map) {
+      setTimeout(() => {
+        google.maps.event.trigger(map, 'resize');
+      }, 100);
+    }
+  } 
+  if (pageId === 'posts') {
+    initializeFileUpload();
+    // Ensure markers are loaded before showing posts
+    if (markers.length === 0) {
+      loadSavedMarkers();
+    }
+    initPostsPage();
+  }
+}
+document.getElementById('show-register').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('login-container').style.display = 'none';
+  document.getElementById('register-container').style.display = 'block';
+});
+
+document.getElementById('show-login').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('register-container').style.display = 'none';
+  document.getElementById('login-container').style.display = 'block';
+});
+
+    // Notification function
+
+let rangeFilter = 10; // Default 10km range
+
+
+// Show profile popup when clicking on a profile picture
+function showProfilePopup(email) {
+  const user = db.getUserByEmail(email);
+  if (!user) {
+    console.error('User not found');
+    return;
+  }
+
+  // Get DOM elements safely
+  const popup = document.getElementById('profilePopup');
+  const nameEl = document.getElementById('popup-profile-name');
+  const emailEl = document.getElementById('popup-profile-email');
+  const bioEl = document.getElementById('popup-profile-bio');
+  const postsEl = document.getElementById('popup-posts-count');
+  const likesEl = document.getElementById('popup-likes-count');
+  const picEl = document.getElementById('popup-profile-pic');
+
+  // Null check all elements
+  if (!popup || !nameEl || !emailEl || !bioEl || !postsEl || !likesEl || !picEl) {
+    console.error('Missing popup elements');
+    return;
+  }
+
+  // Set content
+  nameEl.textContent = user.name || 'Anonymous';
+  emailEl.textContent = user.email;
+  bioEl.textContent = user.bio || 'No bio yet';
+  postsEl.textContent = `${user.postCount || 0} Posts`;
+  likesEl.textContent = `${user.likesReceived || 0} Likes Received`;
+  picEl.src = user.profilePicture || 'default-profile.png';
+
+  // Show popup
+  popup.style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+}
+
+function closeProfilePopup() {
+  const popup = document.getElementById('profilePopup');
+  if (popup) popup.style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// Add this to your initialization code
+document.addEventListener('click', function(e) {
+  // Handle clicks on profile pictures in comments
+  if (e.target.matches('.comment img[src], .fullscreen-comment img[src]')) {
+    const postElement = e.target.closest('[data-user-email], [data-marker-index]');
+    if (postElement) {
+      let userEmail;
+      
+      // Check if this is from a regular post or comment
+      if (postElement.dataset.userEmail) {
+        userEmail = postElement.dataset.userEmail;
+      } else {
+        // For comments, we need to find the comment data
+        const markerIndex = postElement.dataset.markerIndex;
+        const postIndex = postElement.dataset.postIndex;
+        const commentElement = e.target.closest('.comment, .fullscreen-comment');
+        
+        if (commentElement) {
+          // Find the comment index
+          const comments = document.querySelectorAll(`[data-marker-index="${markerIndex}"][data-post-index="${postIndex}"] .comment, [data-marker-index="${markerIndex}"][data-post-index="${postIndex}"] .fullscreen-comment`);
+          const commentIndex = Array.from(comments).indexOf(commentElement);
+          
+          // Get the comment data
+          const marker = markers[markerIndex];
+          const comment = marker.data.comments?.filter(c => c.postIndex == postIndex)[commentIndex];
+          
+          if (comment) {
+            userEmail = comment.userEmail;
+          }
+        }
+      }
+      
+      if (userEmail) {
+        e.preventDefault();
+        e.stopPropagation();
+        showProfilePopup(userEmail);
+      }
+    }
+  }
+});
+// Add this to your Database class
+
+// Initialize posts page functionality
+function initPostsPage() {
+  // Set up filter controls
+  document.getElementById('rangeFilter').addEventListener('input', function() {
+    rangeFilter = parseInt(this.value);
+    document.getElementById('rangeValue').textContent = `${rangeFilter} km`;
+    displayAllPosts();
+  });
+
+  document.getElementById('sortFilter').addEventListener('change', function() {
+    displayAllPosts();
+  });
+
+  // Immediately show all posts without waiting for location
+  displayAllPosts();
+}
+
+function searchManualLocation() {
+  // Just refresh the posts view
+  displayAllPosts();
+}
+function findNearbyPosts() {
+  const container = document.getElementById('nearbyPostsContainer');
+  container.innerHTML = '<div class="loading-spinner">Loading posts...</div>';
+
+  // Get filter values
+  const sortBy = document.getElementById('sortFilter').value;
+  const rangeKm = rangeFilter;
+
+  // Process all markers to get posts
+  const allPosts = markers
+    .filter(marker => marker.data.images && marker.data.images.length > 0)
+    .flatMap(marker => {
+      const markerPos = marker.getPosition();
+      const distance = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(userLocation.lat, userLocation.lng),
+        markerPos
+      ) / 1000; // Convert to km
+
+      return marker.data.images.map((post, postIndex) => ({
+        markerIndex: markers.indexOf(marker),
+        postIndex,
+        post,
+        distance,
+        marker,
+        likes: getLikeCount(marker, postIndex),
+        date: post.createdAt || new Date().toISOString()
+      }));
+    });
+
+  // Sort posts
+  if (sortBy === 'distance') {
+    allPosts.sort((a, b) => a.distance - b.distance);
+  } else if (sortBy === 'date') {
+    allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (sortBy === 'likes') {
+    allPosts.sort((a, b) => b.likes - a.likes);
+  }
+
+  // Display all posts (no distance filtering)
+  if (allPosts.length === 0) {
+    container.innerHTML = `
+      <div class="post-card">
+        <div class="post-content">
+          <p>No posts found. Be the first to add a post!</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  displayPosts(allPosts);
+}
+
+function displayAllPosts() {
+  const container = document.getElementById('nearbyPostsContainer');
+  container.innerHTML = '<div style="text-align:center;padding:20px;font-size:16px;color:#65676b;">Loading posts...</div>';
+
+  const sortBy = document.getElementById('sortFilter').value;
+
+  const allPosts = markers
+    .filter(marker => marker.data.images && marker.data.images.length > 0)
+    .flatMap(marker => {
+      const markerPos = marker.getPosition();
+      const distance = google.maps.geometry.spherical.computeDistanceBetween(
+        markerPos,
+        new google.maps.LatLng(userLocation.lat, userLocation.lng)
+      ) / 1000;
+
+      return marker.data.images.map((post, postIndex) => ({
+        marker,
+        markerIndex: markers.indexOf(marker),
+        post,
+        postIndex,
+        distance,
+        date: post.createdAt || new Date().toISOString(),
+        likes: Object.keys(marker.data.likes?.[postIndex] || {}).length,
+        comments: marker.data.comments?.filter(c => c.postIndex === postIndex) || [] // Ensure comments are properly fetched
+      }));
+    });
+
+  if (sortBy === 'distance') {
+    allPosts.sort((a, b) => a.distance - b.distance);
+  } else if (sortBy === 'date') {
+    allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (sortBy === 'likes') {
+    allPosts.sort((a, b) => b.likes - a.likes);
+  }
+
+  if (allPosts.length === 0) {
+    container.innerHTML = `
+      <div style="background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,0.1);text-align:center;border:1px solid #dddfe2;">
+        No posts found.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+  allPosts.forEach(item => {
+    const user = db.getUserByEmail(item.marker.data.userEmail || item.post.userEmail);
+    const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+    const isLiked = isPostLiked(item.marker, item.postIndex);
+    const likeCount = getLikeCount(item.marker, item.postIndex);
+    const distanceInfo = item.distance ? `${item.distance.toFixed(1)} km away · ` : '';
+    const comments = item.comments; // Use the properly fetched comments
+    const commentId = `comments-${item.markerIndex}-${item.postIndex}`;
+
+    const postDiv = document.createElement('div');
+    postDiv.dataset.markerIndex = item.markerIndex;
+    postDiv.dataset.postIndex = item.postIndex;
+    postDiv.setAttribute('data-user-email', item.marker.data.userEmail || item.post.userEmail);
+
+    postDiv.setAttribute('style', `
+      background:#fff;
+      border-radius:8px;
+      padding:12px;
+      margin-bottom:16px;
+      box-shadow:0 1px 2px rgba(0,0,0,0.1);
+      border:1px solid #dddfe2;
+      font-family:Segoe UI, Helvetica, Arial, sans-serif;
+    `);
+
+    postDiv.innerHTML = `
+      <div style="display:flex;align-items:center;margin-bottom:12px;">
+        <img src="${profilePic}" 
+             onclick="showProfilePopup('${item.marker.data.userEmail || item.post.userEmail}')"
+             style="width:40px;height:40px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:12px;border:1px solid #eee;">
+        <div>
+          <h4 style="margin:0;font-size:15px;font-weight:600;color:#050505;">${user?.name || 'Anonymous'}</h4>
+          <p style="font-size:13px;color:#65676b;margin:2px 0 0;">${distanceInfo}${new Date(item.date).toLocaleDateString()}</p>
+        </div>
+      </div>
+
+      ${item.post.title ? `
+        <div style="
+          font-size:18px;
+          font-weight:700;
+          font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+          margin-bottom:6px;
+          color:#050505;
+          line-height:1.4;">
+          ${item.post.title}
+        </div>
+      ` : ''}
+
+      ${item.post.desc ? `
+        <div style="
+          font-size:15px;
+          font-weight:400;
+          font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+          margin-bottom:12px;
+          color:#4b4f56;
+          line-height:1.5;">
+          ${item.post.desc}
+        </div>
+      ` : ''}
+
+      <div class="post-images-container">
+        ${item.post.src.map(src => `
+          <img src="${src}" 
+               class="post-image"
+               style="max-height:400px;width:auto;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;"
+               onclick="showFullscreenImage('${src}')">
+        `).join('')}
+      </div>
+
+      <div style="display:flex;align-items:center;padding:8px 0;border-top:1px solid #e4e6eb;border-bottom:1px solid #e4e6eb;color:#65676b;font-size:15px;">
+        <div style="flex:1;text-align:center;">
+          <button onclick="toggleLike(${item.markerIndex}, ${item.postIndex}, this)"
+                  style="background:none;border:none;color:${isLiked ? 'red' : 'black'};cursor:pointer;">
+            ♥ ${likeCount} likes
+          </button>
+        </div>
+        <div style="flex:1;text-align:center;">
+          <button onclick="toggleComments('${commentId}')"
+                  style="background:none;border:none;color:#65676b;cursor:pointer;">
+            💬 ${comments.length} comments
+          </button>
+        </div>
+        <div style="flex:1;text-align:center;">
+          <button onclick="goToPost(${item.markerIndex})"
+                  style="background:none;border:none;color:#007bff;cursor:pointer;">
+            Go to Post
+          </button>
+        </div>
+      </div>
+
+      <div id="${commentId}" class="comments-list" data-expanded="false" style="max-height:200px;overflow-y:auto;">
+        ${comments.slice(0, 2).map(comment => {
+          const commentUser = db.getUserByEmail(comment.userEmail); // Get user from comment's email
+          const commentProfilePic = commentUser?.profilePicture || 'data:image/svg+xml;base64,...'; // Default if none
+          return `
+            <div style="display:flex;align-items:flex-start;margin-bottom:8px;">
+              <img src="${commentProfilePic}" 
+                   onclick="showProfilePopup('${comment.userEmail}')"
+                   style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+              <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+                <div style="font-weight:600;font-size:13px;">${commentUser?.name || 'Anonymous'}</div>
+                <div style="font-size:15px;">${comment.text}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+        ${comments.length > 2 ? `
+          <div style="color:#65676b;font-size:13px;text-align:center;padding:8px 0;cursor:pointer;"
+               onclick="toggleComments('${commentId}')">
+            View ${comments.length - 2} more comment${comments.length - 2 === 1 ? '' : 's'}
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="padding-top:8px;display:flex;align-items:center;">
+        <input type="text" 
+               placeholder="Write a comment..." 
+               id="comment-input-${item.markerIndex}-${item.postIndex}"
+               style="flex:1;padding:8px 12px;border-radius:18px;border:1px solid #ddd;background:#f0f2f5;color:#050505;font-size:15px;">
+        <button onclick="addComment(${item.markerIndex}, ${item.postIndex})"
+                style="margin-left:8px;background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:18px;cursor:pointer;font-weight:600;">
+          Post
+        </button>
+      </div>
+    `;
+
+    container.appendChild(postDiv);
+  });
+}
+
+function toggleComments(commentId) {
+  const commentsDiv = document.getElementById(commentId);
+  if (!commentsDiv) {
+    // Element not found, do nothing or show a warning if needed
+    return;
+  }
+  const postDiv = commentsDiv.closest('[data-marker-index]');
+  if (!postDiv) return;
+  const markerIndex = parseInt(postDiv.dataset.markerIndex);
+  const postIndex = parseInt(postDiv.dataset.postIndex);
+
+  const marker = markers[markerIndex];
+  const comments = (marker.data.comments || []).filter(c => c.postIndex === postIndex);
+  const expanded = commentsDiv.getAttribute('data-expanded') === 'true';
+
+  if (!expanded) {
+    // Expand and show all comments
+    commentsDiv.innerHTML = `
+      ${comments.map(comment => {
+        const user = db.getUserByEmail(comment.userEmail) || { name: 'Anonymous', profilePicture: '' };
+        const profilePic = user.profilePicture || 'data:image/svg+xml;base64,...';
+        return `
+          <div style="display:flex;align-items:flex-start;margin-bottom:8px;">
+            <img src="${profilePic}" 
+                 onclick="showProfilePopup('${comment.userEmail}')"
+                 style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+            <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+              <div style="font-weight:600;font-size:13px;">${user.name}</div>
+              <div style="font-size:15px;">${comment.text}</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      <div style="color:#65676b;font-size:13px;text-align:center;padding:8px 0;cursor:pointer;"
+           onclick="toggleComments('${commentId}')">
+        Hide comments
+      </div>
+    `;
+    commentsDiv.style.maxHeight = 'none';
+    commentsDiv.setAttribute('data-expanded', 'true');
+  } else {
+    // Collapse back to 2 comments
+    commentsDiv.innerHTML = `
+      ${comments.slice(0, 2).map(comment => {
+        const user = db.getUserByEmail(comment.userEmail) || { name: 'Anonymous', profilePicture: '' };
+        const profilePic = user.profilePicture || 'data:image/svg+xml;base64,...';
+        return `
+          <div style="display:flex;align-items:flex-start;margin-bottom:8px;">
+            <img src="${profilePic}" 
+                 onclick="showProfilePopup('${comment.userEmail}')"
+                 style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+            <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+              <div style="font-weight:600;font-size:13px;">${user.name}</div>
+              <div style="font-size:15px;">${comment.text}</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      ${comments.length > 2 ? `
+        <div style="color:#65676b;font-size:13px;text-align:center;padding:8px 0;cursor:pointer;"
+             onclick="toggleComments('${commentId}')">
+          View ${comments.length - 2} more comment${comments.length - 2 === 1 ? '' : 's'}
+        </div>
+      ` : ''}
+    `;
+    commentsDiv.style.maxHeight = '200px';
+    commentsDiv.setAttribute('data-expanded', 'false');
+  }
+}
+
+function setupFullscreenProfilePopup() {
+  // This will handle profile picture clicks in fullscreen posts
+  document.addEventListener('click', function(e) {
+    const profilePic = e.target.closest('.fullscreen-post .post-header img[src]');
+    if (profilePic) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Get the user email from the post data
+      const postElement = profilePic.closest('.fullscreen-post');
+      const markerIndex = postElement.closest('.fullscreen-post-card').dataset.markerIndex;
+      const postIndex = postElement.dataset.postIndex;
+      
+      if (markerIndex !== undefined && postIndex !== undefined) {
+        const marker = markers[markerIndex];
+        const post = marker.data.images[postIndex];
+        const userEmail = post.userEmail || marker.data.userEmail;
+        
+        if (userEmail) {
+          showProfilePopup(userEmail);
+        }
+      }
+    }
+  });
+}
+
+function initAccountStats() {
+  if (!auth.currentUser) return;
+  
+  const user = db.getUserByEmail(auth.currentUser.email)
+  if (!user) return;
+
+  // Initialize counts if undefined
+  user.postCount = user.postCount || 0;
+  user.likesReceived = user.likesReceived || 0;
+  db.updateUser(auth.currentUser.email, user);
+
+  // Update DOM elements
+  const postsElement = document.getElementById('account-posts-count');
+  const likesElement = document.getElementById('account-likes-count');
+  
+  if (postsElement) postsElement.textContent = `${user.postCount} Posts`;
+  if (likesElement) likesElement.textContent = `${user.likesReceived} Likes Received`;
+}
+
+// Call this function when initializing your app
+function initApp() {
+  // Your existing init code...
+  setupFullscreenProfilePopup();
+  // Rest of your init code...
+}
+
+// Update your showFullScreenPosts function to include proper data attributes
+function showFullScreenPosts(marker) {
+  activeMarker = marker;
+  showFullScreenPosts(); // This will now redirect to posts page
+}
+function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: -34.397, lng: 150.644 },
+        zoom: 8,
+      });
+      document.getElementById('map').style.height = 'calc(100vh - 50px)';
+
+      document.querySelector('.fullscreen-close').addEventListener('click', closeFullscreenPopup);
+
+      loadSavedMarkers();
+      setupSearch();
+      setupFilters();
+
+      // --- Dynamic marker scaling on zoom ---
+      map.addListener('zoom_changed', () => {
+        const zoom = map.getZoom();
+        // You can tweak the formula below for your preferred scaling
+        const baseScale = 10; // default scale at zoom 15
+        const baseZoom = 15;
+        const minScale = 3;
+        const maxScale = 20;
+        const scale = Math.max(minScale, Math.min(maxScale, baseScale * Math.pow(1.15, zoom - baseZoom)));
+        markers.forEach(marker => {
+          // Only update blue markers
+          if (marker.icon && marker.icon.fillColor === 'blue') {
+            marker.setIcon({
+              ...marker.icon,
+              scale: scale
+            });
+          }
+        });
+      });
+
+      map.addListener('click', (event) => {
+        // Check if there's a marker too close to this location
+        const tooClose = markers.some(marker => {
+          const existingPos = marker.getPosition();
+          const newPos = event.latLng;
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(existingPos, newPos);
+          return distance < MIN_DISTANCE_BETWEEN_MARKERS;
+        });
+
+        if (tooClose) {
+          showNotification('There is already a marker too close to this location');
+          return;
+        }
+
+        if (tempMarker && tempMarker.icon.fillColor === 'red') {
+          tempMarker.setMap(null);
+          markers = markers.filter(m => m !== tempMarker);
+        }
+
+        const marker = new google.maps.Marker({
+          position: event.latLng,
+          map: map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: 'red',
+            fillOpacity: 1,
+            strokeWeight: 0,
+            scale: 10,
+          }
+        });
+        marker.data = { 
+  title: '', 
+  images: [],
+  likes: {},
+  comments: [],
+  locationCreator: auth.currentUser.email // Store location creator separately
+};
+        activeMarker = marker;
+
+        marker.addListener('click', () => {
+          activeMarker = marker;
+          if (marker.icon.fillColor === 'red') {
+            showNamePopup();
+          } else {
+            showInfoPopup(marker);
+          }
+        });
+
+        markers.push(marker);
+        tempMarker = marker;
+        showNamePopup();
+      });
+    }
+
+    function showNamePopup() {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('namePopup').style.display = 'block';
+      document.getElementById('locationName').value = '';
+      document.getElementById('nameError').style.display = 'none';
+      document.getElementById('locationName').focus();
+    }
+
+    function saveLocationName() {
+      const name = document.getElementById('locationName').value.trim();
+      const nameError = document.getElementById('nameError');
+      activeMarker.data.title = name;
+      
+      if (name === '') {
+        nameError.textContent = 'Please enter a location name';
+        nameError.style.display = 'block';
+        return;
+      }
+      
+      if (name.length < 5) {
+        nameError.textContent = 'Location name must be at least 5 characters';
+        nameError.style.display = 'block';
+        return;
+      }
+      
+      // Check for duplicate names (excluding the current marker if it's being edited)
+      const isDuplicate = markers.some(marker => 
+        marker !== activeMarker && 
+        marker.data.title && 
+        marker.data.title.toLowerCase() === name.toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        nameError.textContent = 'This name is already in use. Please choose a different name.';
+        nameError.style.display = 'block';
+        return;
+      }
+      
+      
+      // If we get here, the name is valid
+      nameError.style.display = 'none';
+
+      activeMarker.data.title = name;
+      // Always show marker as blue after naming, regardless of image count
+      activeMarker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: 'blue',
+        fillOpacity: 1,
+        strokeWeight: 0,
+        scale: 10,
+      });
+      activeMarker.setMap(map);
+
+      saveMarkersToLocalStorage();
+      closeAllPopups();
+      showInfoPopup(activeMarker);
+      tempMarker = null;
+}
+
+
+
+    function closeAllPopups() {
+      document.getElementById('overlay').style.display = 'none';
+      document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
+      document.getElementById('locationName').value = '';
+    }
+
+    function closeFullscreenPopup() {
+      document.getElementById('fullscreenPopup').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function setupFilters() {
+      const filterButton = document.getElementById('filterButton');
+      const filterOptions = document.getElementById('filterOptions');
+      const likeRangeMin = document.getElementById('likeRangeMin');
+      const likeRangeMax = document.getElementById('likeRangeMax');
+      const minValue = document.getElementById('minValue');
+      const maxValue = document.getElementById('maxValue');
+
+      // Toggle filter options
+      filterButton.addEventListener('click', () => {
+        filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Update displayed values when sliders change
+      likeRangeMin.addEventListener('input', () => {
+        minValue.textContent = likeRangeMin.value;
+        if (parseInt(likeRangeMin.value) > parseInt(likeRangeMax.value)) {
+          likeRangeMax.value = likeRangeMin.value;
+          maxValue.textContent = likeRangeMin.value;
+        }
+      });
+
+      likeRangeMax.addEventListener('input', () => {
+        maxValue.textContent = likeRangeMax.value;
+        if (parseInt(likeRangeMax.value) < parseInt(likeRangeMin.value)) {
+          likeRangeMin.value = likeRangeMax.value;
+          minValue.textContent = likeRangeMax.value;
+        }
+      });
+    }
+
+    function applyLikeFilter() {
+      const minLikes = parseInt(document.getElementById('likeRangeMin').value);
+      const maxLikes = parseInt(document.getElementById('likeRangeMax').value);
+      const filterType = document.querySelector('input[name="filterType"]:checked').value;
+      
+      currentFilter = { minLikes, maxLikes, filterType };
+      
+      // Apply filter to all markers
+      markers.forEach(marker => {
+        let showMarker = true;
+        
+        if (filterType === 'combined') {
+          // Filter by combined likes of all posts
+          const totalLikes = marker.data.images.reduce((sum, _, index) => {
+            return sum + getLikeCount(marker, index);
+          }, 0);
+          
+          showMarker = totalLikes >= minLikes && totalLikes <= maxLikes;
+        } else {
+          // Filter by single post likes (at least one post must be in range)
+          showMarker = marker.data.images.some((_, index) => {
+            const likes = getLikeCount(marker, index);
+            return likes >= minLikes && likes <= maxLikes;
+          });
+        }
+        
+        // Only show if it meets the filter criteria AND has enough posts to be visible
+        const hasEnoughPosts = marker.data.images && marker.data.images.length >= MIN_POSTS_FOR_VISIBILITY;
+        marker.setMap(showMarker && hasEnoughPosts ? map : null);
+      });
+      
+      document.getElementById('filterOptions').style.display = 'none';
+      showNotification(`Filter applied: ${filterType} likes between ${minLikes} and ${maxLikes}`);
+    }
+
+    function resetFilters() {
+      currentFilter = null;
+      document.getElementById('likeRangeMin').value = 0;
+      document.getElementById('likeRangeMax').value = 50;
+      document.getElementById('minValue').textContent = '0';
+      document.getElementById('maxValue').textContent = '50';
+      document.querySelector('input[name="filterType"][value="combined"]').checked = true;
+      
+      // Reset all markers visibility based on post count
+      markers.forEach(marker => {
+        const hasEnoughPosts = marker.data.images && marker.data.images.length >= MIN_POSTS_FOR_VISIBILITY;
+        marker.setMap(hasEnoughPosts ? map : null);
+      });
+      
+      document.getElementById('filterOptions').style.display = 'none';
+      showNotification('Filters reset');
+    }
+
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const searchButton = document.getElementById('searchButton');
+      const searchResults = document.getElementById('searchResults');
+
+      searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        if (query.length < 2) {
+          searchResults.style.display = 'none';
+          return;
+        }
+
+        const results = markers.filter(marker => 
+          marker.data.title && marker.data.title.toLowerCase().includes(query)
+        );
+
+        if (results.length > 0) {
+          searchResults.innerHTML = results.map(marker => `
+            <div class="search-result-item" data-id="${markers.indexOf(marker)}">
+              ${marker.data.title} (${marker.getPosition().lat().toFixed(4)}, ${marker.getPosition().lng().toFixed(4)})
+              ${marker.data.images && marker.data.images.length < MIN_POSTS_FOR_VISIBILITY ? '<span style="color:orange;">(Hidden - needs more posts)</span>' : ''}
+            </div>
+          `).join('');
+          
+          // Add click handlers to results
+          document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', function() {
+  const markerIndex = parseInt(this.getAttribute('data-id'));
+  const marker = markers[markerIndex];
+  map.panTo(marker.getPosition());
+  map.setZoom(15);
+  activeMarker = marker;
+
+  // Only show hidden marker for 10 seconds if it's hidden
+  if (marker.data.images && marker.data.images.length < MIN_POSTS_FOR_VISIBILITY) {
+  marker.setMap(map);
+  marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: 'blue', // <-- Use blue instead of green
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 10,
+  });
+
+
+    // Hide it again after 10 seconds, but only if still hidden
+    setTimeout(() => {
+      if (marker.data.images.length < MIN_POSTS_FOR_VISIBILITY) {
+        marker.setMap(null);
+      } else {
+        // If it now has enough posts, show as blue
+        marker.setIcon({
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: 'blue',
+          fillOpacity: 1,
+          strokeWeight: 0,
+          scale: 10,
+        });
+        marker.setMap(map);
+      }
+    }, 10000);
+  }
+
+  showInfoPopup(marker);
+  searchResults.style.display = 'none';
+
+  // Show proximity notification if marker is hidden
+  if (marker.data.images && marker.data.images.length < MIN_POSTS_FOR_VISIBILITY) {
+    showProximityNotification(marker.getPosition());
+  }
+});
+          });
+          
+          searchResults.style.display = 'block';
+        } else {
+          searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+          searchResults.style.display = 'block';
+        }
+      });
+
+      searchButton.addEventListener('click', function() {
+        searchInput.dispatchEvent(new Event('input'));
+      });
+
+      // Hide results when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-container')) {
+          searchResults.style.display = 'none';
+        }
+      });
+    }
+
+    function showProximityNotification(position) {
+      const notification = document.getElementById('proximityNotification');
+      notification.style.display = 'block';
+      
+      // Position the notification near the marker
+      const projection = map.getProjection();
+      const pixelPosition = projection.fromLatLngToContainerPixel(position);
+      notification.style.left = `${pixelPosition.x}px`;
+      notification.style.bottom = `${window.innerHeight - pixelPosition.y}px`;
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 5000);
+    }
+
+    // Database simulation (in a real app, use Firebase/Firestore or a backend API)
+    class Database {
+  constructor() {
+    this.users = JSON.parse(localStorage.getItem('db_users')) || [];
+    this.posts = JSON.parse(localStorage.getItem('db_posts')) || [];
+  }
+
+  getPostsByUser(email) {
+    return this.posts.filter(post => post.userEmail === email);
+  }
+
+  getLikesReceived(email) {
+    return this.posts.reduce((total, post) => {
+      if (post.userEmail === email && post.likes) {
+        return total + Object.keys(post.likes).length;
+      }
+      return total;
+    }, 0);
+  }
+
+   getPostsCount(email) {
+    return this.posts.filter(p => p.userEmail === email).length;
+  }
+
+  getLikesReceived(email) {
+    return this.posts.reduce((total, post) => {
+      if (post.userEmail === email && post.likes) {
+        return total + Object.values(post.likes).filter(Boolean).length;
+      }
+      return total;
+    }, 0);
+  }
+  
+  save() {
+    localStorage.setItem('db_users', JSON.stringify(this.users));
+    localStorage.setItem('db_posts', JSON.stringify(this.posts));
+  }
+  
+  createUser(user) {
+    this.users.push(user);
+    this.save();
+    return user;
+  }
+  
+  getUserByEmail(email) {
+    return this.users.find(u => u.email === email);
+  }
+  
+  getPostsByUser(email) {
+    return this.posts.filter(p => p.userEmail === email);
+  }
+  
+  getLikesReceived(email) {
+    // Calculate total likes across all posts by this user
+    return this.posts.reduce((total, post) => {
+      if (post.userEmail === email && post.likes) {
+        return total + Object.keys(post.likes).length;
+      }
+      return total;
+    }, 0);
+  }
+  
+  updateUser(email, updates) {
+    const user = this.getUserByEmail(email);
+    if (user) {
+      Object.assign(user, updates);
+      this.save();
+    }
+    return user;
+  }
+  
+  createPost(post) {
+    this.posts.push(post);
+    this.save();
+    return post;
+  }
+}
+
+    const db = new Database();
+
+    // Auth Class
+    class Auth {
+  constructor() {
+    this.currentUser = this.loadPersistedUser();
+  }
+
+  // Check both localStorage and cookies
+  loadPersistedUser() {
+    // Check localStorage first
+    const localUser = JSON.parse(localStorage.getItem("adisApolloUser"));
+    const sessionCookie = this.getCookie("adisApolloSession");
+    
+    if (localUser && localUser.expiry > Date.now()) {
+      return localUser.user;
+    }
+    
+    if (sessionCookie) {
+      try {
+        const cookieData = JSON.parse(sessionCookie);
+        if (cookieData.expiry > Date.now()) {
+          return cookieData.user;
+        }
+      } catch (e) {
+        console.error('Error parsing session cookie', e);
+      }
+    }
+    
+    // Clean up expired sessions
+    this.clearPersistedUser();
+    return null;
+  }
+
+  // Helper method to get cookies
+  getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  login(user, remember = true) {
+    const expiry = remember 
+      ? Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
+      : Date.now() + (24 * 60 * 60 * 1000);     // 1 day
+
+    this.currentUser = user;
+    
+    // Store in localStorage for persistent sessions
+    if (remember) {
+      localStorage.setItem("adisApolloUser", JSON.stringify({
+        user: user,
+        expiry: expiry
+      }));
+    }
+    
+    // Always set a session cookie
+    const sessionData = JSON.stringify({
+      user: user,
+      expiry: expiry
+    });
+    document.cookie = `adisApolloSession=${encodeURIComponent(sessionData)}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
+    
+    hideAuthOverlay();
+    initApp();
+    showWelcomeNotification();
+  }
+
+  logout() {
+    this.currentUser = null;
+    this.clearPersistedUser();
+    showAuthOverlay();
+  }
+
+  clearPersistedUser() {
+    localStorage.removeItem("adisApolloUser");
+    document.cookie = 'adisApolloSession=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  }
+
+  isAuthenticated() {
+    return !!this.currentUser;
+  }
+}
+
+// Update logout function
+function logout() {
+  // Clear the current user session
+  auth.logout();
+  
+  // Clear user interface
+  clearUserInterface();
+  
+  // Clear any cached data
+  localStorage.removeItem("adisApolloUser");
+  localStorage.removeItem("adisApolloSession");
+  
+  // Show login screen
+  showAuthOverlay();
+  showNotification('You have been logged out successfully.');
+  
+  // Reset to home page
+  showPage('home');
+}
+
+function clearUserInterface() {
+  // Clear profile information
+  document.getElementById('profile-name').textContent = '';
+  document.getElementById('profile-email').textContent = '';
+  document.getElementById('profile-picture').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+';
+  
+  // Clear account form
+  document.getElementById('account-name').value = '';
+  document.getElementById('account-email').value = '';
+  document.getElementById('account-bio').value = '';
+  document.getElementById('pfp-preview').src = '';
+  
+  // Clear statistics
+  document.getElementById('account-posts-count').textContent = '0 Posts';
+  document.getElementById('account-likes-count').textContent = '0 Likes Received';
+  
+  // Clear posts container
+  document.getElementById('nearbyPostsContainer').innerHTML = '';
+  
+  // Clear any active popups
+  closeAllPopups();
+  closeProfilePopup();
+  closeFullscreenPopup();
+  
+  // Clear user location
+  userLocation = DEFAULT_CENTER;
+  
+  // Reset map view if it exists
+  if (map) {
+    map.setCenter(DEFAULT_CENTER);
+    map.setZoom(8);
+  }
+}
+
+function initApp() {
+  if (!auth.isAuthenticated()) {
+    clearUserInterface();
+    showAuthOverlay();
+    return;
+  }
+  
+  // Initialize map if needed
+  if (typeof map === 'undefined' && typeof initMap === 'function') {
+    initMap();
+  }
+  
+  // Set up account page with user data
+  setupAccountPage();
+  updatePostDisplay();
+  updateAllStats();
+  
+  // Hide the auth overlay
+  hideAuthOverlay();
+  
+  console.log('App initialized for user:', auth.currentUser?.email);
+}
+
+// Ensure `auth.login` properly initializes the new session
+if (typeof auth !== 'undefined' && auth !== null) {
+  auth.login = function (user, remember = true) {
+    const expiry = remember
+      ? Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days
+      : Date.now() + 24 * 60 * 60 * 1000; // 1 day
+
+    this.currentUser = user;
+
+    // Store session in localStorage
+    if (remember) {
+      localStorage.setItem("adisApolloUser", JSON.stringify({ expiry, user }));
+    }
+
+    // Set session cookie
+    document.cookie = `adisApolloSession=${encodeURIComponent(
+      JSON.stringify({ user, expiry })
+    )}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
+
+    // Clear UI and initialize the app for the new user
+    hideAuthOverlay();
+    initApp();
+    showWelcomeNotification();
+  };
+} else {
+  console.error('auth object is not defined or initialized.');
+}
+
+// Update `initApp` to reset UI for the new user
+function initApp() {
+  if (!auth.isAuthenticated()) {
+    showAuthOverlay();
+    return;
+  }
+
+  // Reset UI for the new user
+  setupAccountPage();
+  updatePostDisplay();
+  updateAllStats();
+
+  // Initialize map and other components
+  if (typeof initMap === 'function') {
+    initMap();
+  }
+
+  console.log('App initialized for user:', auth.currentUser?.email);
+}
+
+// DOM Elements
+const authOverlay = document.getElementById('auth-overlay');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const showRegisterBtn = document.getElementById('show-register');
+const showLoginBtn = document.getElementById('show-login');
+const pfpPreview = document.getElementById('register-pfp-preview');
+const pfpInput = document.getElementById('register-pfp');
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+      if (!auth.isAuthenticated()) {
+        showAuthOverlay();
+      } else {
+        initApp();
+      }
+      setupEventListeners();
+    });
+
+
+    // Add this when the app starts up
+document.addEventListener('DOMContentLoaded', () => {
+  auth = new Auth();
+  
+  if (auth.isAuthenticated()) {
+    // User is logged in from previous session
+    hideAuthOverlay();
+    initApp();
+    setTimeout(showWelcomeNotification, 1000);
+  } else {
+    // Show login screen
+    showAuthOverlay();
+  }
+  
+  setupEventListeners();
+});
+document.getElementById('login-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const email = document.getElementById('login-email').value.toLowerCase().trim();
+  const password = document.getElementById('login-password').value;
+  const rememberMe = document.getElementById('remember-me').checked;
+
+  try {
+    auth.login(email, password, rememberMe);
+    showNotification(`Welcome back!`);
+    showPage('home');
+    showWelcomeNotification();
+  } catch (error) {
+    showNotification(error.message);
+  }
+});
+
+function logAccountStats(email) {
+  const user = db.getUserByEmail(email);
+  if (!user) {
+    console.log(`No account found for email: ${email}`);
+    return;
+  }
+
+  const userPosts = db.getPostsByUser(email);
+  const totalLikes = db.getLikesReceived(email);
+
+  console.log(`Account Stats for ${user.name || 'Anonymous'} (${email}):`);
+  console.log(`- Total Posts: ${userPosts.length}`);
+  console.log(`- Total Likes Received: ${totalLikes}`);
+}
+
+class AuthSystem {
+  constructor() {
+    this.currentUser = null;
+    this.usersKey = "adisApolloUsers";
+    this.sessionKey = "adisApolloSession";
+  }
+
+  // Register new user
+  register(userData) {
+    console.log('Registering user:', userData);
+    const users = this.getAllUsers();
+    console.log('Existing users:', users);
+
+    if (users.some(u => u.email === userData.email)) {
+      console.log('Registration failed - email exists');
+      throw new Error('Email already registered');
+    }
+    
+    const user = {
+      ...userData,
+      password: this._simpleHash(userData.password),
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
+    };
+    
+    users.push(user);
+    localStorage.setItem(this.usersKey, JSON.stringify(users));
+    console.log('User registered:', user);
+    console.log('Updated users:', this.getAllUsers());
+    
+    return user;
+  }
+
+  login(email, password, remember = false) {
+    console.log('Login attempt for:', email);
+    const user = this.getUserByEmail(email);
+    console.log('Found user:', user);
+    
+    if (!user) {
+      console.log('No user found with this email');
+      throw new Error('Invalid credentials');
+    }
+    
+    const hashedInput = this._simpleHash(password);
+    console.log('Input hash:', hashedInput);
+    console.log('Stored hash:', user.password);
+    
+    if (user.password !== hashedInput) {
+      console.log('Password mismatch');
+      throw new Error('Invalid credentials');
+    }
+    
+    this.currentUser = user;
+    this._createSession(user, remember);
+    console.log('Login successful, session created');
+    
+    return user;
+  }
+}
+
+
+
+// Get all users (admin feature)
+function getAllUsers() {
+  return auth.getAllUsers().map(user => ({
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    joined: new Date(user.createdAt).toLocaleDateString()
+  }));
+}
+
+// Update user profile
+function updateUserProfile(userId, updates) {
+  const users = auth.getAllUsers();
+  const userIndex = users.findIndex(u => u.id === userId);
+  
+  if (userIndex >= 0) {
+    users[userIndex] = { ...users[userIndex], ...updates };
+    localStorage.setItem(auth.usersKey, JSON.stringify(users));
+    
+    // Update current user if it's them
+    if (auth.currentUser && auth.currentUser.id === userId) {
+      auth.currentUser = users[userIndex];
+    }
+    
+    return true;
+  }
+  
+  return false;
+}
+
+
+function debugStorage() {
+
+
+  console.log('Current localStorage:');
+  console.log("Users:", JSON.parse(localStorage.getItem("adisApolloUsers")));
+  console.log("Session:", JSON.parse(localStorage.getItem("adisApolloSession")));
+  console.log('Current auth:', auth.currentUser);
+}
+
+// Run this in browser console after actions
+debugStorage();
+    function setupEventListeners() {
+      // Auth form toggles
+      document.getElementById('show-register').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('register-container').style.display = 'block';
+      });
+
+      document.getElementById('show-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('register-container').style.display = 'none';
+        document.getElementById('login-container').style.display = 'block';
+      });
+
+      // Login form
+      document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  
+  const user = db.getUserByEmail(email);
+  if (user && user.password === password) {
+    auth.login(user);
+    
+    // Show welcome notification after successful login
+    setTimeout(showWelcomeNotification, 500);
+    
+    // Clear form
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+  } else {
+    showNotification('Invalid email or password');
+  }
+});
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    firstName: document.getElementById('reg-first-name').value.trim(),
+    lastName: document.getElementById('reg-last-name').value.trim(),
+    email: document.getElementById('reg-email').value.toLowerCase().trim(),
+    password: document.getElementById('reg-password').value
+  };
+
+  try {
+    // Basic validation
+    if (!formData.email.includes('@')) throw new Error('Invalid email');
+    if (formData.password.length < 8) throw new Error('Password must be 8+ characters');
+    
+    const user = auth.register(formData);
+    showNotification(`Registration successful! Welcome ${user.firstName}`);
+    
+    // Auto-login after registration
+    auth.login(formData.email, formData.password);
+    showPage('home');
+    
+  } catch (error) {
+    showNotification(error.message);
+  }
+});
+
+// Update your register form handler
+
+
+      // Register form
+      document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('register-name').value.trim();
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const pfpFile = document.getElementById('register-pfp').files[0];
+
+        // Validation
+        if (name.length < 3) {
+          showNotification('Name must be at least 3 characters');
+          return;
+        }
+
+
+        if (db.getUserByEmail(email)) {
+          showNotification('Email already registered');
+          return;
+        }
+
+        // Process registration
+        const processRegistration = (profilePicture = '') => {
+          const user = {
+            name,
+            email,
+            password,
+            profilePicture,
+            bio: '',
+            createdAt: new Date().toISOString()
+          };
+          
+          db.createUser(user);
+          auth.login(user);
+          showNotification('Registration successful');
+        };
+
+    try {
+      let profilePicture = '';
+      
+      // Process PFP if provided (but don't block registration if it fails)
+      if (pfpFile) {
+        try {
+          const compressedFile = await compressImage(pfpFile, 0.7);
+          profilePicture = await readFileAsDataURL(compressedFile);
+        } catch (error) {
+          console.error('PFP upload failed:', error);
+          profilePicture = await readFileAsDataURL(pfpFile);
+        }
+      }
+      processRegistration(profilePicture);
+    } catch (error) {
+      console.error('Registration process failed:', error);
+      showNotification('An error occurred during registration. Please try again.');
+    }
+  });
+
+      // Profile picture preview for registration
+      document.getElementById('register-pfp').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById('register-pfp-preview').src = event.target.result;
+            document.getElementById('register-pfp-preview').style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Account form
+      document.getElementById('accountForm').addEventListener('submit', (e) => {
+        updateProfileStats(auth.currentUser.email);
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        const updates = {
+          name: document.getElementById('account-name').value,
+          email: document.getElementById('account-email').value,
+          bio: document.getElementById('account-bio').value
+        };
+        
+        db.updateUser(user.email, updates);
+        auth.login(db.getUserByEmail(updates.email));
+        showNotification('Profile updated successfully');
+      });
+
+      // Profile picture update
+      document.getElementById('pfp-upload').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const compressedFile = await compressImage(file, 0.7, 400, 2); // Max 2MB for profile pics
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      document.getElementById('pfp-preview').src = event.target.result;
+      document.getElementById('profile-picture').src = event.target.result;
+      
+      // Update database
+      const user = auth.currentUser;
+      if (user) {
+        const updates = { profilePicture: event.target.result };
+        db.updateUser(user.email, updates);
+        auth.login(db.getUserByEmail(user.email));
+        showNotification('Profile picture updated');
+      }
+    };
+    
+    reader.readAsDataURL(compressedFile);
+  } catch (error) {
+    showNotification('Error updating profile picture');
+  }
+});
+    }
+      
+    document.addEventListener('DOMContentLoaded', () => {
+  initializeFileUpload();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeFileUpload();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize file upload functionality immediately
+  initializeFileUpload();
+  
+  // Rest of your initialization code...
+  auth = new Auth();
+  
+  if (auth.isAuthenticated()) {
+    hideAuthOverlay();
+    initApp();
+    setTimeout(showWelcomeNotification, 1000);
+  } else {
+    showAuthOverlay();
+  }
+  
+  setupEventListeners();
+});
+
+function initializeFileUpload() {
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('uploadImage');
+
+  if (!dropZone || !fileInput) {
+    // If elements don't exist yet, try again after a short delay
+    setTimeout(initializeFileUpload, 100);
+    return;
+  }
+
+  // Remove existing event listeners to prevent duplicates
+  dropZone.replaceWith(dropZone.cloneNode(true));
+  fileInput.replaceWith(fileInput.cloneNode(true));
+
+  // Get fresh references
+  const currentDropZone = document.getElementById('dropZone');
+  const currentFileInput = document.getElementById('uploadImage');
+
+  // Drag and drop and touch handlers
+  const preventDefaults = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  // Highlight drop zone
+  const highlight = () => {
+    currentDropZone.style.backgroundColor = '#f0f8ff';
+    currentDropZone.style.borderColor = '#0056b3';
+  };
+
+  // Unhighlight drop zone
+  const unhighlight = () => {
+    currentDropZone.style.backgroundColor = '';
+    currentDropZone.style.borderColor = '#007bff';
+  };
+
+  // Add event listeners for mouse and touch
+  currentDropZone.addEventListener('click', () => currentFileInput.click());
+
+  ['dragenter', 'dragover', 'touchstart'].forEach(eventName => {
+    currentDropZone.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop', 'touchend', 'touchcancel'].forEach(eventName => {
+    currentDropZone.addEventListener(eventName, unhighlight, false);
+  });
+
+  ['dragenter', 'dragover', 'dragleave', 'drop', 'touchstart', 'touchend', 'touchcancel'].forEach(eventName => {
+    currentDropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  currentDropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    processFiles(files);
+  });
+
+  // Touch: allow tap to open file picker
+  currentDropZone.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    currentFileInput.click();
+  });
+
+  currentFileInput.addEventListener('change', handleFiles);
+}
+
+function preventDefaults(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function highlight() {
+  document.getElementById('dropZone').classList.add('highlight');
+  document.getElementById('dropZone').style.borderColor = '#0056b3';
+  document.getElementById('dropZone').style.backgroundColor = '#f0f8ff';
+}
+
+function unhighlight() {
+  document.getElementById('dropZone').classList.remove('highlight');
+  document.getElementById('dropZone').style.borderColor = '#007bff';
+  document.getElementById('dropZone').style.backgroundColor = '';
+}
+
+async function handleDrop(e) {
+  const dt = e.dataTransfer;
+  const files = dt.files;
+  await handleFiles({ target: { files } });
+}
+
+async function handleFiles(e) {
+  const files = e.target.files;
+  const dropZone = document.getElementById('dropZone');
+  
+  if (!files || files.length === 0) return;
+  
+  // Filter only image files
+  const imageFiles = Array.from(files).filter(file => 
+    file.type.startsWith('image/')
+  );
+  
+  if (imageFiles.length === 0) {
+    dropZone.innerHTML = 'No valid image files selected';
+    showNotification('Please select only image files (JPEG, PNG, etc.)');
+    return;
+  }
+  
+  // Update UI to show selected files
+  if (imageFiles.length > 3) {
+    dropZone.innerHTML = `${imageFiles.length} images selected`;
+  } else {
+    dropZone.innerHTML = imageFiles.map(file => file.name).join('<br>');
+  }
+  
+  // Store files for later processing when user clicks Upload
+  // The actual processing happens in saveImagePost()
+}
+
+async function processFiles(files) {
+  const previewContainer = document.getElementById('dropZone');
+  previewContainer.innerHTML = ''; // Clear previous content
+
+  // Process each file
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      showNotification('Skipped non-image file: ' + file.name);
+      continue;
+    }
+
+    // Read file with FileReader
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.maxWidth = '200px';
+      img.style.margin = '5px';
+      previewContainer.appendChild(img);
+    };
+    
+    reader.onerror = (error) => {
+      console.error('File reading error:', error);
+      showNotification('Error reading file: ' + file.name);
+    };
+
+    // Read the file as Data URL
+    reader.readAsDataURL(file);
+  }
+}
+
+// Updated handleFiles function
+// Update your handleFiles function
+let selectedFiles = []; // Track selected files globally
+
+async function handleFiles(event) {
+  const files = event.target.files ? Array.from(event.target.files) : [];
+  const dropZone = document.getElementById('dropZone');
+  dropZone.innerHTML = ''; // Clear previous content
+
+  if (files.length === 0) {
+    dropZone.innerHTML = 'Drag & Drop Images Here or Click to Upload';
+    return;
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.maxWidth = '120px';
+      img.style.maxHeight = '120px';
+      img.style.margin = '5px';
+      img.style.borderRadius = '8px';
+      dropZone.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Update your resetUploadForm function
+function resetUploadForm() {
+  selectedFiles = []; // Clear the tracked files
+  document.getElementById('uploadImage').value = '';
+  document.getElementById('imageTitle').value = '';
+  document.getElementById('imageDesc').value = '';
+  document.getElementById('dropZone').innerHTML = 'Drag & Drop Images Here or Click to Upload';
+}
+// Show/Hide Auth
+function showAuthOverlay() {
+      document.getElementById('auth-overlay').style.display = 'flex';
+      document.getElementById('login-container').style.display = 'block';
+      document.getElementById('register-container').style.display = 'none';
+    }
+
+    function hideAuthOverlay() {
+      document.getElementById('auth-overlay').style.display = 'none';
+    }
+
+    function logout() {
+      auth.logout();
+    }
+
+// Profile Picture Preview
+pfpInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      pfpPreview.src = event.target.result;
+      pfpPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Login Form
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  
+  const user = db.getUserByEmail(email);
+  if (user && user.password === password) {
+    auth.login(user);
+    showNotification('Login successful');
+  } else {
+    showNotification('Invalid email or password');
+  }
+});
+
+function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    }
+
+
+// Register Form
+registerForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value.trim();
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  const pfpFile = pfpInput.files[0];
+
+  // Validation
+  if (name.length < 3) {
+    showNotification('Name must be at least 3 characters');
+    return;
+  }
+
+  if (password.length < 6) {
+    showNotification('Password must be at least 6 characters');
+    return;
+  }
+
+  if (db.getUserByEmail(email)) {
+    showNotification('Email already registered');
+    return;
+  }
+
+  // Process registration
+  const processRegistration = (profilePicture = '') => {
+    const user = {
+      name,
+      email,
+      password,
+      profilePicture,
+      bio: '',
+      createdAt: new Date().toISOString()
+    };
+    
+    db.createUser(user);
+    auth.login(user);
+    showNotification('Registration successful');
+  };
+
+  if (pfpFile) {
+    const reader = new FileReader();
+    reader.onload = (e) => processRegistration(e.target.result);
+    reader.readAsDataURL(pfpFile);
+  } else {
+    processRegistration();
+  }
+});
+
+// Toggle between login/register
+showRegisterBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('login-container').style.display = 'none';
+  document.getElementById('register-container').style.display = 'block';
+});
+
+showLoginBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('register-container').style.display = 'none';
+  document.getElementById('login-container').style.display = 'block';
+});
+
+// Account Page Setup
+function setupAccountPage() {
+  if (!auth.isAuthenticated()) return;
+
+  const user = auth.currentUser;
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-email').textContent = user.email;
+  
+  if (user.profilePicture) {
+    document.getElementById('profile-picture').src = user.profilePicture;
+  }
+  initAccountStats();
+
+  // Account form setup
+  document.getElementById('account-name').value = user.name;
+  document.getElementById('account-email').value = user.email;
+  document.getElementById('account-bio').value = user.bio || '';
+
+  // Save changes handler
+  document.getElementById('accountForm').addEventListener('submit', (e) => {
+    updateProfileStats(auth.currentUser.email);
+    e.preventDefault();
+    const updates = {
+      name: document.getElementById('account-name').value,
+      email: document.getElementById('account-email').value,
+      bio: document.getElementById('account-bio').value
+    };
+    db.updateUser(user.email, updates);
+    auth.login(db.getUserByEmail(updates.email)); // Refresh current user
+    showNotification('Profile updated successfully');
+  });
+  if (auth.currentUser) {
+    // Initialize counts if they don't exist
+    if (typeof auth.currentUser.postCount === 'undefined') {
+      db.updateUser(auth.currentUser.email, { postCount: 0 });
+    }
+    if (typeof auth.currentUser.likesReceived === 'undefined') {
+      db.updateUser(auth.currentUser.email, { likesReceived: 0 });
+    }
+    
+    updateProfileStats(auth.currentUser.email);
+  }
+
+  // Profile picture update
+  document.getElementById('pfp-upload').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const compressedFile = await compressImage(file, 0.7, 400, 2); // Max 2MB for profile pics
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      document.getElementById('pfp-preview').src = event.target.result;
+      document.getElementById('profile-picture').src = event.target.result;
+      
+      // Update database
+      const user = auth.currentUser;
+      if (user) {
+        const updates = { profilePicture: event.target.result };
+        db.updateUser(user.email, updates);
+        auth.login(db.getUserByEmail(user.email));
+        showNotification('Profile picture updated');
+      }
+    };
+    
+    reader.readAsDataURL(compressedFile);
+  } catch (error) {
+    showNotification('Error updating profile picture');
+  }
+});
+    document.querySelector('.profile-info').insertAdjacentHTML('beforeend', `
+   
+  `);
+}
+// Profile Picture Preview
+pfpInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      pfpPreview.src = event.target.result;
+      pfpPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Login Form
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  
+  const user = db.getUserByEmail(email);
+  if (user && user.password === password) {
+    auth.login(user);
+    showNotification('Login successful');
+  } else {
+    showNotification('Invalid email or password');
+  }
+});
+
+// Register Form
+registerForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value.trim();
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  const pfpFile = pfpInput.files[0];
+
+  // Validation
+  if (name.length < 3) {
+    showNotification('Name must be at least 3 characters');
+    return;
+  }
+
+  if (password.length < 6) {
+    showNotification('Password must be at least 6 characters');
+    return;
+  }
+
+  if (db.getUserByEmail(email)) {
+    showNotification('Email already registered');
+    return;
+  }
+
+  // Process registration
+  const processRegistration = (profilePicture = '') => {
+    const user = {
+      name,
+      email,
+      password,
+      profilePicture,
+      bio: '',
+      createdAt: new Date().toISOString()
+    };
+    
+    db.createUser(user);
+    auth.login(user);
+    showNotification('Registration successful');
+  };
+
+  if (pfpFile) {
+    const reader = new FileReader();
+    reader.onload = (e) => processRegistration(e.target.result);
+    reader.readAsDataURL(pfpFile);
+  } else {
+    processRegistration();
+  }
+});
+
+// Toggle between login/register
+showRegisterBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('login-container').style.display = 'none';
+  document.getElementById('register-container').style.display = 'block';
+});
+
+showLoginBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('register-container').style.display = 'none';
+  document.getElementById('login-container').style.display = 'block';
+});
+
+// Account Page Setup
+function setupAccountPage() {
+  if (!auth.isAuthenticated()) return;
+
+  const user = auth.currentUser;
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-email').textContent = user.email;
+  
+  if (user.profilePicture) {
+    document.getElementById('profile-picture').src = user.profilePicture;
+  }
+
+  // Account form setup
+  document.getElementById('account-name').value = user.name;
+  document.getElementById('account-email').value = user.email;
+  document.getElementById('account-bio').value = user.bio || '';
+
+  // Save changes handler
+  document.getElementById('accountForm').addEventListener('submit', (e) => {
+    updateProfileStats(auth.currentUser.email);
+    e.preventDefault();
+    const updates = {
+      name: document.getElementById('account-name').value,
+      email: document.getElementById('account-email').value,
+      bio: document.getElementById('account-bio').value
+    };
+    db.updateUser(user.email, updates);
+    auth.login(db.getUserByEmail(updates.email)); // Refresh current user
+    showNotification('Profile updated successfully');
+  });
+  if (auth.currentUser) {
+    // Initialize counts if they don't exist
+    if (typeof auth.currentUser.postCount === 'undefined') {
+      db.updateUser(auth.currentUser.email, { postCount: 0 });
+    }
+    if (typeof auth.currentUser.likesReceived === 'undefined') {
+      db.updateUser(auth.currentUser.email, { likesReceived: 0 });
+    }
+    
+    updateProfileStats(auth.currentUser.email);
+  }
+  // Profile picture update
+  // Update the pfp-upload event handler
+  document.getElementById('pfp-upload').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const compressedFile = await compressImage(file, 0.7, 400, 2); // Max 2MB for profile pics
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      document.getElementById('pfp-preview').src = event.target.result;
+      document.getElementById('profile-picture').src = event.target.result;
+      
+      // Update database
+      const user = auth.currentUser;
+      if (user) {
+        const updates = { profilePicture: event.target.result };
+        db.updateUser(user.email, updates);
+        auth.login(db.getUserByEmail(user.email));
+        showNotification('Profile picture updated');
+      }
+    };
+    
+    reader.readAsDataURL(compressedFile);
+  } catch (error) {
+    showNotification('Error updating profile picture');
+  }
+});
+}
+
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value;
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  const pfpFile = document.getElementById('register-pfp').files[0];
+  
+  if (db.getUserByEmail(email)) {
+    alert('Email already registered');
+    return;
+  }
+  
+  let profilePicture = '';
+  if (pfpFile) {
+    profilePicture = await readFileAsDataURL(pfpFile);
+  }
+  
+  const user = {
+    name,
+    email,
+    password,
+    profilePicture,
+    bio: '',
+    createdAt: new Date().toISOString()
+  };
+  
+  db.createUser(user);
+  auth.login(user);
+});
+
+// Helper Functions
+function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    function showWelcomeNotification() {
+  const notification = document.getElementById('welcomeNotification');
+  notification.style.display = 'block';
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.style.display = 'none', 500);
+  }, 10000);
+}
+  function closeWelcomeNotification() {
+    const notification = document.getElementById('welcomeNotification');
+    notification.style.opacity = '0';
+    setTimeout(() => notification.style.display = 'none', 500);
+  }
+
+    function initApp() {
+    if (!auth.isAuthenticated()) {
+      showAuthOverlay();
+      return;
+    }
+    if (typeof map === 'undefined' && typeof initMap === 'function') {
+    initMap();
+  }
+  
+  // Load account data
+  setupAccountPage();
+    
+    setupAccountPage();
+    if (typeof initMap === 'function') {
+      initMap();
+    }
+    showWelcomeNotification();
+    
+    // Hide the auth overlay if it's still showing
+    hideAuthOverlay();
+
+    console.log('App initialized for user:', auth.currentUser?.email);
+  }
+
+// Profile Popup Functions
+function showProfilePopup(email) {
+  const user = db.getUserByEmail(email);
+  if (!user) return;
+  
+  document.getElementById('popup-profile-name').textContent = user.name;
+  document.getElementById('popup-profile-email').textContent = user.email;
+  document.getElementById('popup-profile-bio').textContent = user.bio || 'No bio yet';
+  
+  const pic = document.getElementById('popup-profile-pic');
+  if (user.profilePicture) {
+    pic.src = user.profilePicture;
+  } else {
+    pic.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+';
+  }
+  
+  // Calculate stats
+  const userPosts = db.getPostsByUser(email);
+
+  
+  profilePopup.style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+}
+
+function closeProfilePopup() {
+  profilePopup.style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// Update post display to include clickable profile
+function updatePostDisplay() {
+  document.querySelectorAll('.post-header').forEach(header => {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', (e) => {
+      const postElement = e.currentTarget.closest('[data-user-email]');
+      if (postElement) {
+        const userEmail = postElement.getAttribute('data-user-email');
+        showProfilePopup(userEmail);
+      }
+    });
+  });
+}
+
+
+// Add this to your initialization code
+document.addEventListener('DOMContentLoaded', () => {
+  // Delegate profile click events
+  document.body.addEventListener('click', (e) => {
+    if (e.target.closest('.profile-picture, [onclick*="showProfilePopup"]')) {
+      const profileElement = e.target.closest('[data-user-email]');
+      if (profileElement) {
+        const email = profileElement.dataset.userEmail;
+        showProfilePopup(email);
+      }
+    }
+  });
+});
+function updateProfileStats(email) {
+   const user = db.getUserByEmail(email);
+  if (!user) return;
+
+  // Update posts count
+  const postsCountElement = document.getElementById('account-posts-count');
+  if (postsCountElement) {
+    postsCountElement.textContent = `${user.postCount || 0} Posts`;
+  }
+
+  // Update likes received
+  const likesCountElement = document.getElementById('account-likes-count');
+  if (likesCountElement) {
+    likesCountElement.textContent = `${user.likesReceived || 0} Likes Received`;
+  }
+
+  // Log stats to console for debugging
+  console.log(`[updateProfileStats] User: ${user.email}, Posts: ${user.postCount || 0}, Likes Received: ${user.likesReceived || 0}`);
+
+
+  const userPosts = db.getPostsByUser(email);
+  const likesReceived = db.getLikesReceived(email);
+
+  // Update stats in the profile popup if it's open
+  if (currentProfileEmail === email) {
+    document.getElementById('popup-posts-count').textContent = `${userPosts.length} Posts`;
+    document.getElementById('popup-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+  }
+
+  // Update stats in the account page if viewing own profile
+  if (auth.currentUser?.email === email) {
+    document.getElementById('profile-posts-count').textContent = `${userPosts.length} Posts`;
+    document.getElementById('profile-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+  }
+}
+
+// Account Page Functions
+function setupAccountPage() {
+      if (!auth.isAuthenticated()) return;
+
+      const user = auth.currentUser;
+      document.getElementById('profile-name').textContent = user.name;
+      document.getElementById('profile-email').textContent = user.email;
+      document.getElementById('account-name').value = user.name;
+      document.getElementById('account-email').value = user.email;
+      document.getElementById('account-bio').value = user.bio || '';
+      
+      if (user.profilePicture) {
+        document.getElementById('profile-picture').src = user.profilePicture;
+        document.getElementById('pfp-preview').src = user.profilePicture;
+      } else {
+        // Default profile picture
+        document.getElementById('profile-picture').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+';
+      }
+      if (auth.currentUser) {
+    // Initialize counts if they don't exist
+    if (typeof auth.currentUser.postCount === 'undefined') {
+      db.updateUser(auth.currentUser.email, { postCount: 0 });
+    }
+    if (typeof auth.currentUser.likesReceived === 'undefined') {
+      db.updateUser(auth.currentUser.email, { likesReceived: 0 });
+    }
+    
+    updateProfileStats(auth.currentUser.email);
+  }
+    }
+
+// Initialize app
+function initApp() {
+  if (!auth.isAuthenticated()) {
+    showAuthOverlay();
+    return;
+  }
+  
+  // Your existing app initialization code
+  setupAccountPage();
+  updatePostDisplay();
+  
+  // Make sure to add data-user-email to all post elements when creating them
+  // Example when creating a post element:
+  // postElement.setAttribute('data-user-email', auth.currentUser.email);
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize auth first
+    auth = new Auth();
+    
+    // Check if we're coming back from a redirect (OAuth, etc.)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('welcome')) {
+      setTimeout(showWelcomeNotification, 1000);
+    }
+    
+    // Initialize the app
+    initApp();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Show welcome notification on first load if logged in
+    if (auth.isAuthenticated()) {
+      setTimeout(showWelcomeNotification, 1500);
+    }
+  });
+
+    function setupFilters() {
+      const filterButton = document.getElementById('filterButton');
+      const filterOptions = document.getElementById('filterOptions');
+      const likeRangeMin = document.getElementById('likeRangeMin');
+      const likeRangeMax = document.getElementById('likeRangeMax');
+      const minValue = document.getElementById('minValue');
+      const maxValue = document.getElementById('maxValue');
+
+      // Toggle filter options
+      filterButton.addEventListener('click', () => {
+        filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Update displayed values when sliders change
+      likeRangeMin.addEventListener('input', () => {
+        minValue.textContent = likeRangeMin.value;
+        if (parseInt(likeRangeMin.value) > parseInt(likeRangeMax.value)) {
+          likeRangeMax.value = likeRangeMin.value;
+          maxValue.textContent = likeRangeMin.value;
+        }
+      });
+
+      likeRangeMax.addEventListener('input', () => {
+        maxValue.textContent = likeRangeMax.value;
+        if (parseInt(likeRangeMax.value) < parseInt(likeRangeMin.value)) {
+          likeRangeMin.value = likeRangeMax.value;
+          minValue.textContent = likeRangeMax.value;
+        }
+      });
+    }
+// Add this to keep session alive while using the app
+function startSessionHeartbeat() {
+  if (!auth.isAuthenticated()) return;
+  
+  // Update session expiry every 5 minutes
+  setInterval(() => {
+    const session = JSON.parse(localStorage.getItem("adisApolloSession"));
+    if (session) {
+      session.expiry = Date.now() + (30 * 24 * 60 * 60 * 1000);
+      localStorage.setItem("adisApolloSession", JSON.stringify(session));
+    }
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+// Call this after successful login
+startSessionHeartbeat();
+
+    // Setup search functionality
+    
+
+// Update your showFullScreenPosts function:
+function showFullScreenPosts() {
+  if (!activeMarker) {
+    showNotification('No marker selected');
+    return;
+  }
+  
+  // Redirect to posts page with marker ID
+  showPage('posts');
+  displaySinglePost(activeMarker);
+}
+
+    // Add these functions to your existing JavaScript
+    function toggleMoreFullscreenComments(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const comments = marker.data.comments?.filter(c => c.postIndex === postIndex) || [];
+  const commentList = document.getElementById(`fullscreen-comments-${markerIndex}-${postIndex}`);
+  commentList.innerHTML = comments.map(comment => {
+    const user = db.getUserByEmail(comment.userEmail);
+    const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+    return `
+      <div class="fullscreen-comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+        <img src="${profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;">
+        <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+          <div style="font-weight:600;font-size:13px;">${user?.name || 'Anonymous'}</div>
+          <div style="font-size:15px;">${comment.text}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function displaySinglePost(marker) {
+  const markerIndex = markers.indexOf(marker);
+  const postsContainer = document.getElementById('nearbyPostsContainer');
+  postsContainer.innerHTML = ''; // Clear existing posts
+
+  marker.data.images.forEach((post, postIndex) => {
+    // Get user data from the POST's userEmail, not the marker's
+    const user = db.getUserByEmail(post.userEmail);
+    const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+    const isLiked = isPostLiked(marker, postIndex);
+    const likeCount = getLikeCount(marker, postIndex);
+    const comments = marker.data.comments?.filter(c => c.postIndex === postIndex) || [];
+    const visibleComments = comments.slice(0, 2);
+    const remainingCount = comments.length - 2;
+    const commentId = `comments-${markerIndex}-${postIndex}`;
+
+    const postElement = document.createElement('div');
+    postElement.className = 'post-card';
+    postElement.dataset.markerIndex = markerIndex;
+    postElement.dataset.postIndex = postIndex;
+
+    postElement.innerHTML = `
+      <div class="post-header" style="display:flex;align-items:center;margin-bottom:10px;">
+        <img src="${profilePic}" 
+             onclick="showProfilePopup('${post.userEmail}')"
+             style="width:50px;height:50px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:15px;">
+        <div class="post-user-info">
+          <h4 style="margin:0;font-size:16px;">${user?.name || 'Anonymous'}</h4>
+          <p style="margin:0;font-size:13px;color:#888;">${new Date(post.createdAt).toLocaleDateString()}</p>
+        </div>
+      </div>
+      ${post.title ? `<div class="post-title" style="font-size:18px;font-weight:600;margin-bottom:6px;">${post.title}</div>` : ''}
+      ${post.desc ? `<div class="post-desc" style="font-size:15px;margin-bottom:10px;">${post.desc}</div>` : ''}
+      <div class="post-images-container">
+        ${post.src.map(src => `
+          <img src="${src}" 
+               class="post-image"
+               style="max-height:400px;width:auto;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;"
+               onclick="showFullscreenImage('${src}')">
+        `).join('')}
+      </div>
+      <div class="post-actions" style="display:flex;gap:10px;margin-bottom:10px;">
+        <button 
+          class="like-btn ${isLiked ? 'liked' : ''}" 
+          onclick="toggleLike(${markerIndex}, ${postIndex}, this)"
+          style="background:none;border:none;color:${isLiked ? 'red' : 'black'};cursor:pointer;padding:4px 8px;border-radius:4px;font-size:15px;">
+          ${likeCount} likes
+        </button>
+        <button class="comment-btn" 
+                onclick="focusCommentInput(this)"
+                style="background:none;border:none;cursor:pointer;font-size:14px;">
+          💬 Comment
+        </button>
+      </div>
+
+      <div class="comments-section">
+        <div class="comments-list" id="${commentId}">
+          <div class="comment-items-wrapper">
+            ${visibleComments.map(comment => {
+              const commentUser = db.getUserByEmail(comment.userEmail);
+              const commentPic = commentUser?.profilePicture || 'data:image/svg+xml;base64,...';
+              return `
+                <div class="comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+                  <img src="${commentPic}" 
+                       onclick="showProfilePopup('${comment.userEmail}')"
+                       style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+                  <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+                    <div style="font-weight:600;font-size:13px;">${commentUser?.name || 'Anonymous'}</div>
+                    <div style="font-size:14px;">${comment.text}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          ${remainingCount > 0 ? `
+            <div class="view-more-comments" 
+                 onclick="toggleMoreComments(${markerIndex}, ${postIndex})"
+                 style="color:#65676b;font-size:13px;text-align:center;padding:6px 0;cursor:pointer;">
+              View ${remainingCount} more comment${remainingCount > 1 ? 's' : ''}
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="comment-input" style="display:flex;align-items:center;margin-top:10px;">
+          <input type="text" placeholder="Write a comment..." 
+                 id="comment-input-${markerIndex}-${postIndex}"
+                 onkeypress="if(event.key === 'Enter') addComment(${markerIndex}, ${postIndex})"
+                 style="flex:1;padding:8px 12px;border-radius:18px;border:1px solid #ddd;background:#f0f2f5;color:#050505;font-size:14px;">
+          <button onclick="addComment(${markerIndex}, ${postIndex})"
+                  style="margin-left:8px;background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:18px;cursor:pointer;font-weight:600;">
+            Post
+          </button>
+        </div>
+      </div>
+    `;
+
+    postsContainer.appendChild(postElement);
+  });
+}
+
+// Enhanced image compression function
+async function compressImage(file, quality = 0.6, maxWidth = 1024, maxSizeMB = 25) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Scale down if needed
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Quality adjustment loop
+        const adjustQuality = (q) => {
+          canvas.toBlob(
+            (blob) => {
+              if (blob.size > maxSizeMB * 1024 * 1024 && q > 0.1) {
+                adjustQuality(q - 0.1);
+              } else {
+                resolve(new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                }));
+              }
+            },
+            'image/jpeg',
+            q
+          );
+        };
+
+        adjustQuality(quality);
+      };
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function toggleMoreComments(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const allComments = marker.data.comments?.filter(c => c.postIndex === postIndex) || [];
+
+  const wrapper = document.querySelector(`#comments-${markerIndex}-${postIndex} .comment-items-wrapper`);
+  const viewMoreBtn = document.querySelector(`#comments-${markerIndex}-${postIndex} .view-more-comments`);
+
+  if (!wrapper) return;
+
+  wrapper.innerHTML = allComments.map(comment => {
+    const user = db.getUserByEmail(comment.userEmail);
+    const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+    return `
+      <div class="comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+        <img src="${profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;" onclick="showProfilePopup('${comment.userEmail}')">
+        <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+          <strong style="font-size:13px;">${user?.name || 'Anonymous'}</strong>
+          <div style="font-size:14px;">${comment.text}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (viewMoreBtn) viewMoreBtn.remove();
+}
+
+
+function addFullscreenComment(markerIndex, postIndex) {
+  const input = document.getElementById(`fullscreen-comment-input-${markerIndex}-${postIndex}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const marker = markers[markerIndex];
+  if (!marker.data.comments) marker.data.comments = [];
+
+  marker.data.comments.push({
+    userEmail: auth.currentUser.email,
+    text,
+    createdAt: new Date().toISOString(),
+    postIndex
+  });
+
+  input.value = '';
+
+  // Save if needed
+  saveMarkersToStorage?.();
+
+  // ✅ Call this to update fullscreen comment section
+  renderFullscreenComments(markerIndex, postIndex);
+}
+
+
+
+function renderFullscreenComments(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const commentsContainer = document.getElementById(`fullscreen-comments-${markerIndex}-${postIndex}`);
+  if (!commentsContainer) return;
+
+  const allComments = marker.data.comments?.filter(c => c.postIndex === postIndex) || [];
+  const visibleCount = 2;
+  const visibleComments = allComments.slice(0, visibleCount);
+  const remainingCount = allComments.length - visibleCount;
+
+  commentsContainer.innerHTML = `
+    ${visibleComments.map(comment => {
+      const user = db.getUserByEmail(comment.userEmail) || { name: 'Anonymous', profilePicture: '' };
+      const profilePic = user.profilePicture || 'data:image/svg+xml;base64,...';
+      return `
+        <div class="fullscreen-comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+          <img src="${profilePic}" 
+               onclick="showProfilePopup('${comment.userEmail}')"
+               style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+          <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+            <div style="font-weight:600;font-size:13px;">${user.name}</div>
+            <div style="font-size:15px;">${comment.text}</div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+
+    ${remainingCount > 0 ? `
+      <div style="color:#65676b;font-size:13px;text-align:center;padding:8px 0;cursor:pointer;"
+           onclick="toggleMoreFullscreenComments(${markerIndex}, ${postIndex})">
+        View ${remainingCount} more comment${remainingCount > 1 ? 's' : ''}
+      </div>
+    ` : ''}
+  `;
+}
+
+
+// Account system functions
+function getCurrentUser() {
+  return JSON.parse(localStorage.getItem('currentUser')) || null;
+}
+
+function loadAccountInfo() {
+  const user = getCurrentUser();
+  if (!user) {
+    showLogin();
+    return;
+  }
+
+  document.getElementById('account-info').style.display = 'block';
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('register-section').style.display = 'none';
+  
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-email').textContent = user.email;
+  document.getElementById('account-name').value = user.name;
+  document.getElementById('account-email').value = user.email;
+  document.getElementById('account-bio').value = user.bio || '';
+  
+  if (user.profilePicture) {
+    document.getElementById('profile-picture').src = user.profilePicture;
+    document.getElementById('pfp-preview').src = user.profilePicture;
+  }
+}
+
+function showLogin() {
+  document.getElementById('account-info').style.display = 'none';
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('register-section').style.display = 'none';
+}
+
+function showRegister() {
+  document.getElementById('account-info').style.display = 'none';
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('register-section').style.display = 'block';
+}
+
+// Initialize account system when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  // Setup account form
+// Update your account form submit handler
+document.getElementById('accountForm').addEventListener('submit', async function(e) {
+  updateProfileStats(auth.currentUser.email);
+  e.preventDefault();
+  
+  const user = auth.currentUser;
+  if (!user) return;
+  
+  const pfpFile = document.getElementById('pfp-upload').files[0];
+  let profilePicture = user.profilePicture;
+
+  if (pfpFile) {
+    try {
+      // Compress and save the image permanently
+      const compressedFile = await compressImage(pfpFile, 0.7);
+      profilePicture = await readFileAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('Error processing profile picture:', error);
+      profilePicture = await readFileAsDataURL(pfpFile);
+    }
+  }
+
+  const updates = {
+    name: document.getElementById('account-name').value,
+    email: document.getElementById('account-email').value,
+    bio: document.getElementById('account-bio').value,
+    profilePicture: profilePicture
+  };
+  
+  db.updateUser(user.email, updates);
+  auth.login(db.getUserByEmail(updates.email));
+  
+  // Update UI immediately
+  document.getElementById('profile-picture').src = updates.profilePicture;
+  document.getElementById('pfp-preview').src = updates.profilePicture;
+  
+  showNotification('Profile updated successfully');
+});
+
+// Update the pfp upload handler
+document.getElementById('pfp-upload').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const compressedFile = await compressImage(file, 0.7, 400, 2); // Max 2MB for profile pics
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      document.getElementById('pfp-preview').src = event.target.result;
+      document.getElementById('profile-picture').src = event.target.result;
+      
+      // Update database
+      const user = auth.currentUser;
+      if (user) {
+        const updates = { profilePicture: event.target.result };
+        db.updateUser(user.email, updates);
+        auth.login(db.getUserByEmail(user.email));
+        showNotification('Profile picture updated');
+      }
+    };
+    
+    reader.readAsDataURL(compressedFile);
+  } catch (error) {
+    showNotification('Error updating profile picture');
+  }
+});
+  
+  // Setup login form
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      loadAccountInfo();
+      showNotification('Login successful');
+    } else {
+      showNotification('Invalid email or password');
+    }
+  });
+  
+  // Setup register form
+  document.getElementById('registerForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    
+    if (users.some(u => u.email === email)) {
+      showNotification('Email already registered');
+      return;
+    }
+    
+    const newUser = { name, email, password };
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('currentUser', JSON.stringify(newUser));
+    
+    loadAccountInfo();
+    showNotification('Registration successful');
+  });
+  
+  // Check if user is logged in
+  loadAccountInfo();
+});
+
+// Update getUserId function to use the logged in user
+function getUserId() {
+  const user = getCurrentUser();
+  return user ? user.email : 'anonymous';
+}
+
+// Update this function that renders comments
+function renderComment(comment) {
+  const user = db.getUserByEmail(comment.userEmail);
+  const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+  
+  return `
+    <div class="comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+      <img src="${profilePic}" 
+           onclick="showProfilePopup('${comment.userEmail}')"
+           style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;cursor:pointer;">
+      <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+        <div style="font-weight:600;font-size:13px;">${user?.name || 'Anonymous'}</div>
+        <div style="font-size:15px;">${comment.text}</div>
+      </div>
+    </div>
+  `;
+}
+
+// For regular posts
+function renderPostHeader(userEmail) {
+  const user = db.getUserByEmail(userEmail);
+  const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+  
+  return `
+    <div class="post-header" style="display:flex;align-items:center;margin-bottom:10px;">
+      <img src="${profilePic}" 
+           onclick="showProfilePopup('${userEmail}')"
+           style="width:50px;height:50px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:15px;">
+      <div class="post-user-info">
+        <h4 style="margin:0;font-size:16px;">${user?.name || 'Anonymous'}</h4>
+        <p style="margin:0;font-size:13px;color:#888;">${new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+  `;
+}
+
+// For fullscreen posts
+function renderFullscreenPostHeader(userEmail) {
+  const user = db.getUserByEmail(userEmail);
+  const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+  
+  return `
+    <div class="fullscreen-post-header" style="display:flex;align-items:center;margin-bottom:15px;">
+      <img src="${profilePic}" 
+           onclick="showProfilePopup('${userEmail}')"
+           style="width:60px;height:60px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:20px;">
+      <div class="post-user-info">
+        <h3 style="margin:0;font-size:20px;">${user?.name || 'Anonymous'}</h3>
+        <p style="margin:0;font-size:15px;color:#888;">${new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+  `;
+}
+
+function toggleLike(markerIndex, postIndex, element) {
+  const marker = markers[markerIndex];
+  const userEmail = auth.currentUser?.email;
+  if (!userEmail) {
+    showNotification('You must be logged in to like posts.');
+    return;
+  }
+
+  // Ensure likes structure exists
+  if (!marker.data.likes) marker.data.likes = {};
+  if (!marker.data.likes[postIndex]) marker.data.likes[postIndex] = {};
+
+  // Toggle like
+  const alreadyLiked = !!marker.data.likes[postIndex][userEmail];
+  if (alreadyLiked) {
+    delete marker.data.likes[postIndex][userEmail];
+  } else {
+    marker.data.likes[postIndex][userEmail] = true;
+  }
+
+  saveMarkersToLocalStorage();
+
+  // Update like count and button color
+  const likeCount = Object.keys(marker.data.likes[postIndex]).length;
+  element.classList.toggle('liked', !alreadyLiked);
+  element.style.color = !alreadyLiked ? 'red' : 'black';
+  element.textContent = `${likeCount} likes`;
+
+  // Update likes received for the post owner
+
+  const postOwnerEmail = marker.data.images[postIndex].userEmail;
+  const postOwner = db.getUserByEmail(postOwnerEmail);
+  const increment = isLiked ? -1 : 1;
+  
+  postOwner.likesReceived = (postOwner.likesReceived || 0) + increment;
+  db.updateUser(postOwnerEmail, postOwner);
+
+  // Update UI if viewing own profile
+  if (auth.currentUser?.email === postOwnerEmail) {
+    initAccountStats();
+  }
+  if (postOwner) {
+    // Recalculate total likes received
+    const totalLikes = db.getLikesReceived(postOwnerEmail);
+    db.updateUser(postOwnerEmail, { likesReceived: totalLikes });
+    updateProfileStats(postOwnerEmail);
+  }
+  
+}
+
+// Update post count dynamically when a new post is added
+function addPost(marker, post) {
+  if (!marker.data.images) {
+    marker.data.images = [];
+  }
+
+  marker.data.images.push(post);
+  saveMarkersToLocalStorage();
+
+  // Update post count in the account page
+  if (auth.currentUser) {
+    const postCountElement = document.getElementById('profile-posts-count');
+    if (postCountElement) {
+      const currentCount = parseInt(postCountElement.textContent) || 0;
+      postCountElement.textContent = `${currentCount + 1} Posts`;
+    }
+  }
+}
+
+document.addEventListener('click', function (e) {
+  const profilePic = e.target.closest('.profile-pic-clickable');
+  if (profilePic) {
+    const postElement = profilePic.closest('.post-card');
+    const userEmail = postElement.dataset.userEmail;
+    showProfilePopup(userEmail);
+  }
+});
+
+function updateLikeCounts(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const count = getLikeCount(marker, postIndex);
+  
+  // Update in info popup
+  document.querySelectorAll(`.image-post[data-post-index="${postIndex}"] .like-count`)
+    .forEach(el => el.textContent = `${count} likes`);
+  
+  // Update in fullscreen view
+  document.querySelectorAll(`.fullscreen-post[data-post-index="${postIndex}"] .like-count`)
+    .forEach(el => el.textContent = `${count} likes`);
+  
+  // Update in posts page
+  document.querySelectorAll(`.post-card[data-post-index="${postIndex}"] .like-count`)
+    .forEach(el => el.textContent = `${count} likes`);
+}
+
+function addPost(marker, post) {
+  if (!marker.data.images) {
+    marker.data.images = [];
+  }
+
+  marker.data.images.push(post);
+  saveMarkersToLocalStorage();
+
+  // Update the profile popup stats
+  if (auth.currentUser) {
+    updateProfileStats(auth.currentUser.email);
+  }
+}
+
+    function updateInfoPopupLikes(markerIndex, postIndex) {
+      const marker = markers[markerIndex];
+      const postElement = document.querySelector(`.image-post[data-post-index="${postIndex}"]`);
+      
+      if (postElement) {
+        const likeCountElement = postElement.querySelector('.like-count');
+        if (likeCountElement) {
+          likeCountElement.textContent = `${getLikeCount(marker, postIndex)} likes`;
+        }
+      }
+    }
+
+    function addCommentFromPostsPage(markerIndex, postIndex, inputElement) {
+  const marker = markers[markerIndex];
+  const commentText = inputElement.value.trim();
+  const user = auth.currentUser;
+
+  if (!commentText || !user) return;
+
+  if (!marker.data.comments) marker.data.comments = [];
+  
+  marker.data.comments.push({
+    postIndex: postIndex,
+    user: user.name,
+    userEmail: user.email, // Add this line
+    text: commentText,
+    createdAt: new Date().toISOString(),
+    postIndex
+  });
+
+  saveMarkersToLocalStorage();
+  inputElement.value = '';
+  
+  renderLatestComment(markerIndex, postIndex);
+  updateProfileStats(user.email); // Update stats for commenter
+}
+
+// Handle Enter key in comment inputs
+document.addEventListener('keypress', function(e) {
+  if (e.target.matches('[id^="comment-input-"]') && e.key === 'Enter') {
+    const ids = e.target.id.split('-');
+    const markerIndex = parseInt(ids[2]);
+    const postIndex = parseInt(ids[3]);
+    addComment(markerIndex, postIndex);
+  }
+});
+
+// Universal comment function
+function addComment(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const input = document.getElementById(`comment-input-${markerIndex}-${postIndex}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const newComment = {
+    text,
+    userEmail: auth.currentUser.email,
+    postIndex,
+    createdAt: Date.now()
+  };
+
+  // Add to data
+  if (!marker.data.comments) marker.data.comments = [];
+  marker.data.comments.push(newComment);
+
+  // Save to localStorage (optional)
+  saveMarkersToLocalStorage();
+
+  // Refresh all comments and scroll to the new comment
+  refreshVisibleComments(markerIndex, postIndex);
+
+  // Reset input
+  input.value = '';
+
+  // Scroll to the newly added comment
+  const commentList = document.querySelector(`#comments-${markerIndex}-${postIndex}`);
+  if (commentList) {
+    commentList.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function refreshVisibleComments(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const comments = marker.data.comments?.filter(c => c.postIndex === postIndex) || [];
+
+  const commentList = document.querySelector(`#comments-${markerIndex}-${postIndex}`);
+  if (!commentList) return;
+
+  commentList.innerHTML = `
+    <div class="comment-items-wrapper">
+      ${comments.map(comment => {
+        const commentUser = db.getUserByEmail(comment.userEmail);
+        const commentPic = commentUser?.profilePicture || 'data:image/svg+xml;base64,...';
+        return `
+          <div class="comment" style="display:flex;align-items:flex-start;margin-bottom:10px;">
+            <img src="${commentPic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:10px;">
+            <div style="background:#f0f2f5;border-radius:18px;padding:8px 12px;flex:1;">
+              <strong style="font-size:13px;">${commentUser?.name || 'Anonymous'}</strong>
+              <div style="font-size:14px;">${comment.text}</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+    function getUserId() {
+      // Simple user identification - in a real app you'd use proper authentication
+      if (!localStorage.getItem('userId')) {
+        localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2, 9));
+      }
+      return localStorage.getItem('userId');
+    }
+
+    function isPostLiked(marker, postIndex) {
+      if (!marker.data.likes || !marker.data.likes[postIndex]) return false;
+      return !!marker.data.likes[postIndex][getUserId()];
+    }
+
+    function getLikeCount(marker, postIndex) {
+      if (!marker.data.likes || !marker.data.likes[postIndex]) return 0;
+      return Object.keys(marker.data.likes[postIndex]).length;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+  // Initialize profile popup functionality
+  document.getElementById('overlay').addEventListener('click', closeProfilePopup);
+  
+  // Rest of your initialization code...
+});
+
+    function closeFullscreenPopup() {
+      document.getElementById('fullscreenPopup').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function showInfoPopup(marker) {
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('infoPopup').style.display = 'block';
+  document.getElementById('infoTitle').textContent = marker.data.title || 'Unnamed Location';
+  document.getElementById('infoCoords').textContent = `${marker.getPosition().lat().toFixed(6)}, ${marker.getPosition().lng().toFixed(6)}`;
+
+  const user = db.getUserByEmail(marker.data.userEmail);
+  const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+  const infoArea = document.getElementById('infoArea');
+  infoArea.innerHTML = '';
+  
+  const fullscreenButton = document.getElementById('fullscreenButton');
+  fullscreenButton.style.display = marker.data.images?.length ? 'block' : 'none';
+
+  if (marker.data.images && marker.data.images.length > 0) {
+    marker.data.images.forEach((post, index) => {
+      const user = db.getUserByEmail(post.userEmail); // Use post's userEmail
+      const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+      const postDiv = document.createElement('div');
+      postDiv.innerHTML = `
+        <div class="post-header">
+          <img src="${profilePic}" 
+               onclick="showProfilePopup('${post.userEmail}')"
+               style="width:50px;height:50px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:15px;">
+          <div class="post-location">
+            <h4>${user?.name || 'Anonymous'}</h4>
+            <p>${new Date(post.createdAt).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <div class="post-images-container">
+          ${post.src.map((src, i) => `
+            <img src="${src}" 
+                 class="post-image"
+                 style="max-height:400px;width:auto;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;"
+                 onclick="showFullscreenImage('${src}')">
+          `).join('')}
+        </div>
+        ${post.title ? `<div class="post-title"><strong>${post.title}</strong></div>` : ''}
+        ${post.desc ? `<div class="post-desc">${post.desc}</div>` : ''}
+        <div class="like-section">
+          <button 
+            class="like-btn ${isPostLiked(marker, index) ? 'liked' : ''}" 
+            data-like-marker="${markers.indexOf(marker)}" 
+            data-like-post="${index}" 
+            onclick="toggleLike(${markers.indexOf(marker)}, ${index}, this)"
+            style="background:none;border:none;color:${isPostLiked(marker, index) ? 'red' : 'black'};cursor:pointer;padding:4px 8px;border-radius:4px;font-size:15px;">
+            ${getLikeCount(marker, index)} likes
+          </button>
+        </div>
+        <hr style="margin: 15px 0;">
+      `;
+      infoArea.appendChild(postDiv);
+    });
+  } else {
+    infoArea.innerHTML = '<p>No images added yet.</p>';
+  }
+}
+
+
+
+    
+async function saveImagePost() {
+  const fileInput = document.getElementById('uploadImage');
+  const title = document.getElementById('imageTitle').value;
+  const desc = document.getElementById('imageDesc').value;
+  const files = Array.from(fileInput.files);
+  const dropZone = document.getElementById('dropZone');
+
+  if (files.length === 0) {
+    showNotification('Please select at least one image');
+    return;
+  }
+
+  
+
+  // Show loading state
+  const originalDropZoneContent = dropZone.innerHTML;
+  dropZone.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Processing...</span></div>';
+  const uploadBtn = document.querySelector('#imageUploadPopup button.btn-success');
+  const originalBtnText = uploadBtn.textContent;
+  uploadBtn.textContent = 'Uploading...';
+  uploadBtn.disabled = true;
+
+  try {
+    const imageSources = [];
+    
+    // Process files sequentially to avoid memory issues
+    for (const file of files) {
+      try {
+        if (!file.type.startsWith('image/')) {
+          
+          console.warn(`Skipped non-image file: ${file.name}`);
+          continue;
+        }
+
+        // Compress with fallback to original if compression fails
+        let processedFile;
+        try {
+          processedFile = await compressImage(file, 0.7);
+        } catch (compressError) {
+          console.warn('Compression failed, using original file', compressError);
+          processedFile = file;
+        }
+
+        const dataUrl = await readFileAsDataURL(processedFile);
+        imageSources.push(dataUrl);
+      } catch (error) {
+        console.error(`Error processing file ${file.name}:`, error);
+        showNotification(`Error processing ${file.name}. Please try another image.`);
+      }
+    }
+
+    if (imageSources.length === 0) {
+      throw new Error('No valid images could be processed');
+    }
+
+    // Create post object
+    const post = {
+  title: title || 'Untitled',
+  desc: desc || '',
+  src: imageSources,
+  userEmail: auth.currentUser?.email || 'anonymous',
+  userName: auth.currentUser?.name || 'Anonymous', // Add username directly
+  createdAt: new Date().toISOString(),
+  likes: {}
+};
+
+    if (!activeMarker.data.images) {
+      activeMarker.data.images = [];
+    }
+    if (auth.currentUser) {
+    updateProfileStats(auth.currentUser.email);
+  }
+
+    activeMarker.data.images.push(post);
+    saveMarkersToLocalStorage();
+    
+    // Update marker visibility if needed
+    updateMarkerVisibility(activeMarker);
+    
+    // Reset form
+    resetUploadForm();
+    
+    // Show success
+    showNotification(`${imageSources.length} image(s) uploaded successfully!`);
+    closeAllPopups();
+    showInfoPopup(activeMarker);
+
+  } catch (error) {
+    console.error('Upload failed:', error);
+    showNotification('Upload failed. Please try again.');
+    dropZone.innerHTML = originalDropZoneContent;
+  } finally {
+    // Reset UI
+    uploadBtn.textContent = originalBtnText;
+    uploadBtn.disabled = false;
+  }
+  if (auth.currentUser) {
+    updateProfileStats(auth.currentUser.email);
+  }
+
+    if (auth.currentUser) {
+    updateRealtimeStats(auth.currentUser.email);
+  }
+
+  if (auth.currentUser) {
+    updateProfileStats(auth.currentUser.email);
+  }
+
+  if (auth.currentUser) {
+    const user = db.getUserByEmail(auth.currentUser.email);
+    user.postCount = (user.postCount || 0) + 1;
+    db.updateUser(auth.currentUser.email, user);
+    initAccountStats(); // Refresh counts
+  }
+}
+
+function updateMarkerVisibility(marker) {
+  if (marker.data.images.length >= MIN_POSTS_FOR_VISIBILITY) {
+    marker.setIcon({
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: 'blue',
+      fillOpacity: 1,
+      strokeWeight: 0,
+      scale: 10,
+    });
+    marker.setMap(map);
+  } else {
+    marker.setMap(null); // Hide if not enough posts
+  }
+
+  if (auth.currentUser) {
+    const user = db.getUserByEmail(auth.currentUser.email);
+    const newPostCount = (user.postCount || 0) + 1;
+    db.updateUser(auth.currentUser.email, { postCount: newPostCount });
+    updateProfileStats(auth.currentUser.email);
+  }
+}
+
+function resetUploadForm() {
+  document.getElementById('uploadImage').value = '';
+  document.getElementById('imageTitle').value = '';
+  document.getElementById('imageDesc').value = '';
+  document.getElementById('dropZone').innerHTML = 'Drag & Drop Images Here or Click to Upload';
+}
+
+// Helper function to read file as data URL
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+    function finalizeImagePost(imageSources, title, desc) {
+      const post = {
+        title: title || 'Untitled',
+        desc: desc || '',
+        src: imageSources
+      };
+
+      if (!activeMarker.data.images) {
+        activeMarker.data.images = [];
+      }
+
+      activeMarker.data.images.push(post);
+
+      // Check if we've reached the minimum posts for visibility
+      if (activeMarker.data.images.length >= MIN_POSTS_FOR_VISIBILITY) {
+        activeMarker.setIcon({
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: 'blue',
+          fillOpacity: 1,
+          strokeWeight: 0,
+          scale: 10,
+        });
+        activeMarker.setMap(map);
+      }
+
+      saveMarkersToLocalStorage();
+      closeAllPopups();
+      showInfoPopup(activeMarker);
+
+      // Clear form
+      document.getElementById('uploadImage').value = '';
+      document.getElementById('imageTitle').value = '';
+      document.getElementById('imageDesc').value = '';
+    }
+
+    function showImageUpload() {
+  closeAllPopups();
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('imageUploadPopup').style.display = 'block';
+  
+  // Re-initialize file upload in case elements were recreated
+  initializeFileUpload();
+  
+  document.getElementById('imageTitle').focus();
+}
+
+    function saveMarkersToLocalStorage() {
+      const markerData = markers.map(marker => ({
+        position: marker.getPosition().toJSON(),
+        data: marker.data,
+        iconColor: marker.icon.fillColor
+      }));
+      localStorage.setItem('markers', JSON.stringify(markerData));
+    }
+
+    function loadSavedMarkers() {
+  const savedMarkers = JSON.parse(localStorage.getItem('markers')) || [];
+  savedMarkers.forEach(data => {
+    const marker = new google.maps.Marker({
+      position: data.position,
+      map: null,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: 'blue',
+        fillOpacity: 1,
+        strokeWeight: 0,
+        scale: 10,
+      }
+    });
+
+    marker.data = data.data || { title: '', images: [] };
+    if (!marker.data.images) marker.data.images = [];
+    if (!marker.data.likes) marker.data.likes = {};
+    if (!marker.data.comments) marker.data.comments = [];
+
+    // Always show marker as blue if it has a title (name)
+    if (marker.data.title && marker.data.title.trim() !== '') {
+      marker.setMap(map);
+    } else {
+      // If no name, treat as temp marker (red)
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: 'red',
+        fillOpacity: 1,
+        strokeWeight: 0,
+        scale: 10,
+      });
+      marker.setMap(map);
+    }
+
+    marker.addListener('click', () => {
+      activeMarker = marker;
+      if (!marker.data.title || marker.data.title.trim() === '') {
+        showNamePopup();
+      } else {
+        showInfoPopup(marker);
+      }
+    });
+
+    markers.push(marker);
+  });
+}
+
+    
+
+    // Initialize drag and drop
+    document.getElementById('dropZone').addEventListener('click', () => {
+      document.getElementById('uploadImage').click();
+    });
+
+    document.getElementById('dropZone').addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'copy';
+      e.currentTarget.style.backgroundColor = '#f0f8ff';
+    });
+
+    document.getElementById('dropZone').addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.style.backgroundColor = '';
+    });
+
+    document.getElementById('dropZone').addEventListener('drop', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.style.backgroundColor = '';
+      
+      if (e.dataTransfer.files.length) {
+        const files = Array.from(e.dataTransfer.files);
+        const dataTransfer = new DataTransfer();
+        
+        // Add all image files to the input
+        files.forEach(file => {
+          if (file.type.startsWith('image/')) {
+            dataTransfer.items.add(file);
+          }
+        });
+        
+        document.getElementById('uploadImage').files = dataTransfer.files;
+        
+        // Update drop zone text to show selected files
+        if (dataTransfer.files.length > 0) {
+          const fileNames = Array.from(dataTransfer.files).map(f => f.name).join(', ');
+          document.getElementById('dropZone').innerHTML = 
+            `Selected: ${dataTransfer.files.length} file(s)<br>${fileNames}`;
+        } else {
+          showNotification('No valid image files were dropped');
+        }
+      }
+    });
+
+
+    // Setup posts page functionality
+document.getElementById('findPostsBtn').addEventListener('click', findNearbyPosts);
+
+function findNearbyPosts() {
+  const locationInput = document.getElementById('userLocation').value.trim();
+  if (!locationInput) {
+    showNotification('Please enter a location');
+    return;
+  }
+
+  // In a real app, you'd geocode the location to get coordinates
+  // For this demo, we'll just show all posts with a "Go to Post" button
+  const container = document.getElementById('nearbyPostsContainer');
+  container.innerHTML = '<h3>Loading posts near you...</h3>';
+
+  // Simulate geocoding delay
+  setTimeout(() => {
+    displayAllPosts();
+  }, 1000);
+}
+
+
+
+function focusCommentInput(element) {
+  const postCard = element.closest('.post-card');
+  const input = postCard.querySelector('.comment-input');
+  input.focus();
+}
+
+function handleCommentKeypress(event, markerIndex, postIndex) {
+  if (event.key === 'Enter' && event.target.value.trim()) {
+    addCommentFromPostsPage(markerIndex, postIndex, event.target);
+  }
+}
+
+function addCommentFromPostsPage(markerIndex, postIndex, inputElement) {
+  const marker = markers[markerIndex];
+  const commentText = inputElement.value.trim();
+  
+  if (!commentText) return;
+  
+  if (!marker.data.comments) marker.data.comments = [];
+  
+  marker.data.comments.push({
+    postIndex: postIndex,
+    user: getUserId(),
+    text: commentText,
+    timestamp: new Date().toISOString()
+  });
+  
+  saveMarkersToLocalStorage();
+  inputElement.value = '';
+  
+  // Update comments display
+  const commentsContainer = document.getElementById(`comments-${markerIndex}-${postIndex}`);
+  if (!commentsContainer) {
+    // Create comments container if it doesn't exist
+    const postCard = inputElement.closest('.post-card');
+    const commentsDiv = document.createElement('div');
+    commentsDiv.className = 'comments-list';
+    commentsDiv.id = `comments-${markerIndex}-${postIndex}`;
+    inputElement.insertAdjacentElement('beforebegin', commentsDiv);
+  }
+  
+  renderLatestComment(markerIndex, postIndex);
+}
+
+function renderLatestComment(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  const commentsContainer = document.getElementById(`comments-${markerIndex}-${postIndex}`) || 
+                          document.createElement('div');
+  
+  if (!commentsContainer.id) {
+    commentsContainer.id = `comments-${markerIndex}-${postIndex}`;
+    commentsContainer.className = 'comments-list';
+    document.querySelector(`[data-post-index="${postIndex}"] .post-comments`)
+      .insertBefore(commentsContainer, document.querySelector(`[data-post-index="${postIndex}"] .comment-input-container`));
+  }
+
+  const latestComment = marker.data.comments
+    .filter(c => c.postIndex === postIndex)
+    .slice(-1)[0];
+
+  if (latestComment) {
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'post-comment';
+    commentDiv.innerHTML = `
+      <span class="comment-author">${latestComment.user}:</span>
+      <span>${latestComment.text}</span>
+    `;
+    commentsContainer.appendChild(commentDiv);
+  }
+}
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', () => {
+  if (auth.loadSession()) {
+    hideAuthOverlay();
+    initApp();
+    setTimeout(showWelcomeNotification, 1000);
+  } else {
+    showAuthOverlay();
+  }
+});
+
+// Auto-logout when session expires
+setInterval(() => {
+  if (auth.isAuthenticated()) {
+    const session = JSON.parse(localStorage.getItem(auth.sessionKey));
+    if (session && session.expiry <= Date.now()) {
+      auth.logout();
+      showNotification('Your session has expired');
+      showAuthOverlay();
+    }
+  }
+}, 60 * 1000); // Check every minute
+
+function togglePostLike(markerIndex, postIndex, likeElement) {
+  const marker = markers[markerIndex];
+  const userId = getUserId();
+  
+  if (!marker.data.likes) marker.data.likes = {};
+  if (!marker.data.likes[postIndex]) marker.data.likes[postIndex] = {};
+  
+  if (marker.data.likes[postIndex][userId]) {
+    delete marker.data.likes[postIndex][userId];
+    likeElement.classList.remove('liked');
+  } else {
+    marker.data.likes[postIndex][userId] = true;
+    likeElement.classList.add('liked');
+  }
+  
+  saveMarkersToLocalStorage();
+  
+  // Update like count display
+  const likeCount = getLikeCount(marker, postIndex);
+  likeElement.innerHTML = `<span>♥</span> Like (${likeCount})`;
+}
+
+map.setOptions({ streetViewControl: false });
+function goToPost(markerIndex) {
+  showPage('home');
+  const marker = markers[markerIndex];
+  
+  // Always show the marker temporarily when navigating to it
+  marker.setMap(map);
+  marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: 'blue',
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 10,
+  });
+  
+  map.panTo(marker.getPosition());
+  map.setZoom(15);
+  activeMarker = marker;
+  
+  // Show all posts at this location
+  showInfoPopup(marker);
+  
+  // If marker should be hidden, hide it after delay
+  if (marker.data.images.length < MIN_POSTS_FOR_VISIBILITY) {
+    setTimeout(() => {
+      if (marker.data.images.length < MIN_POSTS_FOR_VISIBILITY) {
+        marker.setMap(null);
+      }
+    }, 10000);
+  }
+}
+function updateProfileStats(email) {
+  const user = db.getUserByEmail(email);
+  if (!user) return;
+
+  // Update posts count
+  const postsCountElement = document.getElementById('account-posts-count');
+  if (postsCountElement) {
+    postsCountElement.textContent = `${user.postCount || 0} Posts`;
+  }
+
+  // Update likes received
+  const likesCountElement = document.getElementById('account-likes-count');
+  if (likesCountElement) {
+    likesCountElement.textContent = `${user.likesReceived || 0} Likes Received`;
+  }
+  }
+
+
+function updateAllStats() {
+  if (auth.currentUser) {
+    updateProfileStats(auth.currentUser.email);
+  }
+}
+
+// Add this to your JavaScript
+function showFullscreenImage(src) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+  overlay.style.zIndex = '10000';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+  overlay.style.cursor = 'pointer';
+  
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.maxWidth = '90%';
+  img.style.maxHeight = '90%';
+  img.style.objectFit = 'contain';
+  
+  overlay.appendChild(img);
+  overlay.onclick = () => document.body.removeChild(overlay);
+  
+  document.body.appendChild(overlay);
+}
+
+function updateRealtimeStats(email) {
+  const user = db.getUserByEmail(email);
+  if (!user) return;
+
+  // Update profile popup if it's open for this user
+  if (currentProfileEmail === email) {
+    document.getElementById('popup-posts-count').textContent = `${db.getPostsCount(email)} Posts`;
+    document.getElementById('popup-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+  }
+
+  // Update account page if viewing own profile
+  if (auth.currentUser?.email === email) {
+    document.getElementById('profile-posts-count').textContent = `${db.getPostsCount(email)} Posts`;
+    document.getElementById('profile-likes-count').textContent = `${db.getLikesReceived(email)} Likes Received`;
+  }
+}
+function clearAllStorage() {
+  try {
+    // Clear localStorage
+    localStorage.clear();
+    
+    // Clear sessionStorage
+    sessionStorage.clear();
+    
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+    });
+    
+    // If using IndexedDB, you may want to clear that too
+    // Note: This is more complex and requires async code
+    
+    console.log("All storage cleared successfully");
+    return true;
+  } catch (error) {
+    console.error("Error clearing storage:", error);
+    return false;
+  }
+}// Clear 
+
+function showFullScreenPostsFromPostsPage(markerIndex, postIndex) {
+  const marker = markers[markerIndex];
+  if (!marker) {
+    showNotification('Marker not found');
+    return;
+  }
+
+  const post = marker.data.images[postIndex];
+  if (!post) {
+    showNotification('Post not found');
+    return;
+  }
+
+  // Populate fullscreen popup with the selected post
+
+// In showFullScreenPostsFromPostsPage() function
+const user = db.getUserByEmail(post.userEmail); // Use POST'S userEmail
+const profilePic = user?.profilePicture || 'data:image/svg+xml;base64,...';
+
+fullscreenContent.innerHTML = `
+  <div class="fullscreen-post">
+    <div class="post-header" style="display:flex;align-items:center;margin-bottom:10px;">
+      <img src="${profilePic}" 
+           onclick="showProfilePopup('${post.userEmail}')"
+           style="width:50px;height:50px;border-radius:50%;object-fit:cover;cursor:pointer;margin-right:15px;cursor:pointer;">
+      <div>
+        <h4 style="margin:0;">${user?.name || 'Anonymous'}</h4>
+        <p style="margin:0;font-size:13px;color:#888;">${new Date(post.createdAt).toLocaleDateString()}</p>
+      </div>
+    </div>
+    ${post.title ? `<h3>${post.title}</h3>` : ''}
+    ${post.desc ? `<p>${post.desc}</p>` : ''}
+    <div class="post-images-container">
+      ${post.src.map(src => `
+        <img src="${src}" 
+             class="post-image"
+             style="max-height:400px;width:auto;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer;"
+             onclick="showFullscreenImage('${src}')">
+      `).join('')}
+    </div>
+  </div>
+`;
+
+  // Show the fullscreen popup
+  document.getElementById('fullscreenPopup').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+}
+
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwNASQtV7dJa51ZMbkcWq9WTDP4O3PlZg&callback=initMap&libraries=geometry"></script>
+</body>
+</html>
